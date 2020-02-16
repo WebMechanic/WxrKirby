@@ -18,22 +18,41 @@ class Transform
 	private $handler;
 
 	/**
-	 * Transform constructor applies $handler
-	 * The Closure must accept a `DOMNode` or `DOMElement` as its 1st argument
-	 * and an optional `Item` (or derivative) to apply() the transformation.
+	 * Transform constructor takes a $handler function that does the job.
+	 * The Closure itself must accept a `DOMNode` or `DOMElement` as its
+	 * 1st argument and an optional `Item` (or derivative) to `apply()`
+	 * the transformation.
+	 *
+	 * There's no requirement to use the `Closure` class. using a vanilla
+	 * `new Transform( function(DOMNode $node, Item $item) {...} )`
+	 * will do.
 	 *
 	 * @param \Closure|null $handler
+	 * @see apply(), Meta::addHandler()
 	 */
 	function __construct(\Closure $handler = null)
 	{
-		$this->handler  = $handler;
+		$this->handler = $handler;
 	}
 
 	/**
 	 * Apply the transformation handler.
 	 *
+	 * Since a transformation is virtually applicable to any public property
+	 * of the two objects incl. der DOMNode's child nodes, a callback's
+	 * return value (if any) is unpredictable and thus ignored.
+	 * Something like this inside an Item-ish class' custom setWhatever()
+	 * method is usually fine:
+	 * <listing>
+	 *     $this->transform($node->nodeName)->apply($node);
+	 *     $this->url = $node->textContent;
+	 * </listing>
+	 *
+	 * See Item::set() and Meta::apply() for a more complex examples.
+	 *
 	 * @param DOMNode $node the XML node
 	 * @param Item    $post usually a Wordpress\Page|Attachment object (so far)
+	 * @see Item::set(), Meta::apply(), Meta::addHandler()
 	 */
 	function apply(DOMNode $node, Item $post = null): void
 	{
