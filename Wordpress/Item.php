@@ -101,7 +101,7 @@ class Item
 		/* only deal with this if there's some content.
 		 * Empty nodes or <![CDATA[]]> is not. */
 		if ($elt->firstChild) {
-			$this->transform = $this->converter()->getTransform($elt->nodeName);
+			$this->transform = $this->transform($elt->nodeName);
 
 			// element data setter
 			if (method_exists($this, $method)) {
@@ -193,9 +193,14 @@ class Item
 		return $this->XML->getConverter()->getSite();
 	}
 
-	public function author(string $name): Author
+	public function author(string $username): Author
 	{
-		return $this->XML->getConverter()->getAuthor($name);
+		return $this->XML->getConverter()->getAuthor($username);
+	}
+
+	public function transform(string $elementName): Transform
+	{
+		return $this->XML->getConverter()->getTransform($elementName);
 	}
 
 	/**

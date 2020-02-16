@@ -76,6 +76,7 @@ class Channel extends Item
 	 */
 	public function setBaseSiteUrl(DOMNode $url): Channel
 	{
+		$this->transform($url->nodeName)->apply($url);
 		$this->url = $url->textContent;
 		return $this;
 	}
@@ -98,6 +99,7 @@ class Channel extends Item
 	public function setBaseBlogUrl(DOMNode $url): Channel
 	{
 		if (isset($this->url)) {
+			$this->transform($url->nodeName)->apply($url);
 			$this->blogUrl = $url->textContent;
 		}
 		return $this;
