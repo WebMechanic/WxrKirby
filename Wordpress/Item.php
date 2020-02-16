@@ -111,8 +111,8 @@ class Item
 			}
 
 			// vanilla assignment
-			$this->{$store}[$prop] = $elt->textContent;
 			$this->transform->apply($elt, $this);
+			$this->{$store}[$prop] = $elt->textContent;
 //		} else {
 //			echo "~ $prop ** EMPTY ** [", $elt->textContent, "]", PHP_EOL;
 		}
@@ -151,12 +151,26 @@ class Item
 	}
 
 	/**
-	 * @param DOMNode $link
+	 * Have base URLs use HTTPS and drop 'www' hostname.
+	 * Applies to <link> (channel, item), <wp:base_site_url>, <wp:base_blog_url>.
+	 * Set `$transformOnly = true` to use this method as a general utility
+	 * to ONLY modify the `$link->textContent` w/o changing the $link property
+	 * of $this object; i.e. @param DOMNode $link
+	 *
 	 * @return Item
-	 * @todo strip hostname from link URL
+	 * @see  Channel::setBaseSiteUrl().
+	 *
+	 * @todo use config options to: enable HTTPS, enable www removal, replace domainname
 	 */
-	public function setLink(DOMNode $link): Item
+	public function setLink(DOMNode $link, $transformOnly = false): Item
 	{
+		// HTTPS
+		$link->textContent = str_replace('http:', 'https:', $link->textContent);
+		// no 'www'
+		$link->textContent = str_replace('://www.', '://', $link->textContent);
+
+		if ($transformOnly) return $this;
+
 		$this->link = $link->textContent;
 		return $this;
 	}

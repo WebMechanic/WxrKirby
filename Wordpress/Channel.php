@@ -47,37 +47,20 @@ class Channel extends Item
 				return $this;
 				break;
 
-			case 'link':
-				$this->setBaseSiteUrl($elt);
-				break;
-
 			case 'title':
 				/* @see Item::setTitle() */
 			case 'description':
 			case 'language':
+			case 'link':
+			case 'base_site_url':
 			case 'base_blog_url':
-				/* @see setBaseBlogUrl() */
+				/* @see setBaseSiteUrl(), setBaseBlogUrl() */
 			case 'generator':
 				$this->set($elt);
 				break;
 			}
 		}
 
-		return $this;
-	}
-
-
-	/**
-	 * Sets the site's URL.
-	 *
-	 * @param string $url
-	 *
-	 * @return Channel
-	 */
-	public function setBaseSiteUrl(DOMNode $url): Channel
-	{
-		$this->transform($url->nodeName)->apply($url);
-		$this->url = $url->textContent;
 		return $this;
 	}
 
@@ -90,18 +73,43 @@ class Channel extends Item
 	}
 
 	/**
-	 * Sets $data.blog to $value (URL) otherwise delegates to setBaseSiteUrl();
+	 * Sets the site's URL using <wp:base_site_url> and applies the same URL
+	 * transformation as Item::setLink().
+	 * This element usually follows <channel><link> in a standard WXR export.
 	 *
-	 * @param string $url
+	 * @param DOMNode $url
 	 *
 	 * @return Channel
+	 * @see  setBaseBlogUrl()
+	 * @uses Item::setLink()
+	 */
+	public function setBaseSiteUrl(DOMNode $url): Channel
+	{
+		// the "original" <channel><link> is already done, but
+		// this will use <wp:base_site_url> for the transform
+		$this->setLink($url, true);
+		$this->url = $url->textContent;;
+		return $this;
+	}
+
+	/**
+	 * Sets the site's Blog URL using <wp:base_blog_url> and applies the same
+	 * URL transformation as Item::setLink().
+	 * This element usually follows <channel><link> in a standard WXR export.
+	 *
+	 * @param DOMNode $url
+	 *
+	 * @return Channel
+	 * @see  setBaseSiteUrl()
+	 * @uses Item::setLink()
 	 */
 	public function setBaseBlogUrl(DOMNode $url): Channel
 	{
-		if (isset($this->url)) {
-			$this->transform($url->nodeName)->apply($url);
-			$this->blogUrl = $url->textContent;
-		}
+		// the "original" <channel><link> is already done, but
+		// this will use <wp:base_site_url> for the transform
+		$this->setLink($url, true);
+		$this->blogUrl = $url->textContent;
+
 		return $this;
 	}
 
