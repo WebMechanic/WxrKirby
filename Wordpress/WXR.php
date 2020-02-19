@@ -160,7 +160,9 @@ class WXR
 	 */
 	protected function parseAuthor(DOMElement $wp_author): WXR
 	{
-		$this->converter->setAuthor(new Author($wp_author));
+		$author = new Author();
+		$author->parseNode($wp_author);
+		$this->converter->setAuthor($author);
 		return $this;
 	}
 }

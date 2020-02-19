@@ -11,6 +11,10 @@ namespace WebMechanic\Converter\Kirby;
 
 use DOMNode;
 
+/**
+ * Transform a Wordpress content <item> into a Kirby content Site, File,
+ * Page or Author.
+ */
 abstract class Content
 {
 	protected $contentPath = 'content/';
@@ -25,16 +29,6 @@ abstract class Content
 
 	/** @var array reg_replace node prefixes */
 	protected $prefixFilter = '//';
-
-	/**
-	 * Transform a Wordpress content item into a Kirby content file, page or author.
-	 *
-	 * @param DOMNode $node
-	 */
-	public function __construct(DOMNode $node)
-	{
-		$this->parseNode($node);
-	}
 
 	/**
 	 * Override in subclasses.
