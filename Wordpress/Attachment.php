@@ -16,9 +16,6 @@ class Attachment extends Post
 	/** @var string wp:attachment_url */
 	public $url;
 
-	/** @var string */
-	public $filepath;
-
 	/** @var string _wp_attached_file */
 	protected $image;
 
@@ -60,9 +57,26 @@ class Attachment extends Post
 		return $this;
 	}
 
-	public function setFilepath(DOMNode $elt): Attachment
+	/**
+	 * Find an 'attachment_id' or delegate to Post.
+	 *
+	 * @param string $url
+	 * @return Post
+	 */
+	public function setFilepath(string $url): Post
 	{
-		$this->filepath = $elt->textContent;
+		// attachment_id=5
+		$parts = parse_url($url);
+		if (isset($parts['query'])) {
+			parse_str($parts['query'], $query);
+			if (isset($query['attachment_id'])) {
+				$this->id = (int)$query['attachment_id'];
+				$this->filepath = $parts['path'] === '/' ? '' : $parts['path'];
+			}
+		} else {
+			parent::setFilepath($url);
+		}
+
 		return $this;
 	}
 

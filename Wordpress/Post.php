@@ -10,7 +10,6 @@
 namespace WebMechanic\Converter\Wordpress;
 
 use DOMNode;
-use WebMechanic\Converter\Kirby\Page;
 use WebMechanic\Converter\Meta;
 
 class Post extends Item
@@ -32,6 +31,9 @@ class Post extends Item
 	protected $date;
 	/** @var string wp:post_name */
 	protected $name;
+
+	/** @var string */
+	public $filepath;
 
 	/** @var string wp:status publish|draft|inherit */
 	protected $status;
@@ -204,6 +206,36 @@ class Post extends Item
 	public function setName(DOMNode $elt): Post
 	{
 		$this->name = $elt->textContent;
+		return $this;
+	}
+
+	/**
+	 * @param DOMNode $link
+	 * @param bool    $transformOnly
+	 * @return Item
+	 */
+	public function setLink(DOMNode $link, $transformOnly = false): Item
+	{
+		parent::setLink($link, $transformOnly);
+
+		$this->setFilepath($this->link);
+
+		return $this;
+	}
+
+	/**
+	 * Take the 'path' from $url. Since $url may represent a virtual ressource
+	 * such as a slide or gallery, cleanup and data transform has to be done
+	 * in the _site specific Converter subclass_ and the Kirby side of things
+	 * using custom filters and Transforms.
+	 *
+	 * @param string $url
+	 * @return Post
+	 */
+	public function setFilepath(string $url): Post
+	{
+		$parts = parse_url($url);
+		$this->filepath = $parts['path'];
 		return $this;
 	}
 

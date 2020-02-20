@@ -13,11 +13,17 @@ use DOMNode;
 
 class Channel extends Item
 {
-	/** @var string incl. protocol */
-	private $url;
+	/**
+	 * @see $link
+	 * @var string incl. protocol
+	 */
+	protected $url;
 
-	/** @var string incl. protocol */
-	private $blogUrl;
+	/**
+	 * @see $link
+	 * @var string incl. protocol
+	 */
+	protected $blogUrl;
 
 	/**
 	 * Extract some elements of Wordpress <channel> for Kirby's site file.
