@@ -52,7 +52,7 @@ class Attachment extends Post
 	 */
 	public function setAttachmentUrl(DOMNode $elt): Attachment
 	{
-		$baseUrl     = $this->site()->getUrl();
+		$baseUrl     = $this->site()->url;
 		$this->image = str_replace($baseUrl, '', $elt->textContent);
 		return $this;
 	}

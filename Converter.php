@@ -208,7 +208,7 @@ class Converter
 	 */
 	public function setPage(Post $post): Converter
 	{
-		$this->pages[$post->getId()] = $post;
+		$this->pages[$post->id] = $post;
 		return $this;
 	}
 
@@ -266,7 +266,7 @@ class Converter
 	 */
 	public function setFile(Attachment $file): Converter
 	{
-		$this->files[$file->getId()] = $file;
+		$this->files[$file->id] = $file;
 		return $this;
 	}
 

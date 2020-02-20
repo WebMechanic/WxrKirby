@@ -58,14 +58,6 @@ class Post extends Item
 	const PARSE_IMG = 4;
 
 	/**
-	 * @return int
-	 */
-	public function getId(): int
-	{
-		return $this->id;
-	}
-
-	/**
 	 * @param DOMNode $elt
 	 *
 	 * @return Post
