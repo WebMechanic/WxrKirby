@@ -67,14 +67,14 @@ class Converter
 	 * TITLE: Kirby Field used to store the Post title
 	 * TEXT: Kirby Field used to store the Post content
 	 *
-	 * DELEGATE:
+	 * DELEGATE: XML Element names handled by specific classes.
 	 * 'nav_menu_item': The WP Mainmenu.
 	 * 		Only useful to recreate the same structure in Kirby.
 	 * 		Due to its complexity, this should be handled in a separate class,
-	 * 		Class Nav_Menu_Item if present, rebuilding the node tree based on
-	 * 		the `wp:postmeta` information in all <item>s.
+	 * 		i.e. Wordpress\Menu (not provided), rebuilding the node tree based
+	 * 		on the `wp:postmeta` information in all <item>s.
 	 *
-	 * DISCARD:
+	 * DISCARD: XML Element names ignored during conversion.
 	 * 'display_type': unknown
 	 * 'ngg_pictures', 'ngg_gallery', 'gal_display_source',
 	 * 'slide', 'lightbox_library': gallery stuff
@@ -84,7 +84,7 @@ class Converter
 	protected static $options = [
 		'title' => 'Title',
 		'text' => 'Text',
-		'delegate' => ['nav_menu_item'],
+		'delegate' => ['nav_menu_item' => null],
 		'discard' => ['wooframework', 'ngg_pictures', 'ngg_gallery', 'gal_display_source', 'slide', 'lightbox_library'],
 	];
 
@@ -92,7 +92,7 @@ class Converter
 
 	/**
 	 * Converter constructor.
-	 * To get going call `$this->XMW->parse($this)` in your derived class.
+	 * To get going call `$this->convert()` in your derived class.
 	 *
 	 * @param string $xml_path
 	 */

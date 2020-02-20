@@ -1,7 +1,8 @@
 <?php
 /**
- * Parse Wordpress XML RSS data (WXR) from an export dump.
+ * Parse "WordPress eXtended RSS" (WXR) file from an export dump.
  *
+ * @link    https://wordpress.org/support/article/tools-export-screen/
  * @version 0.1.0 2020-01-21
  * @license WTFPL 2.0
  * @author  Rene Serradeil <serradeil@webmechanic.biz>
@@ -40,16 +41,18 @@ class WXR
 	 */
 
 	/**
-	 * Parse XML RSS data from a Wordpress export dump located in $xmlpath
+	 * Creates a DOMDocument from the $xmlPath.
+	 * To do the parsing and start the conversion once custom options are set
+	 * in your Converter instance call `$this->convert()`.
 	 *
-	 * @param string $xmlpath
+	 * @param string $xmlPath
 	 * @param string $targetPath for Kirby output file
 	 */
-	function __construct(string $xmlpath)
+	function __construct(string $xmlPath)
 	{
-		$xmlpath = realpath($xmlpath);
+		$xmlPath = realpath($xmlPath);
 		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
-		$this->document = DOMDocument::load($xmlpath, LIBXML_COMPACT | LIBXML_NOBLANKS | LIBXML_NOCDATA);
+		$this->document = DOMDocument::load($xmlPath, LIBXML_COMPACT | LIBXML_NOBLANKS | LIBXML_NOCDATA);
 	}
 
 	/**
@@ -60,6 +63,11 @@ class WXR
 		unset ($this->document);
 	}
 
+	/**
+	 * Parse XML RSS data stored in $document.
+	 *
+	 * @param Converter $converter
+	 */
 	public function parse(Converter $converter)
 	{
 		$this->converter = $converter;
