@@ -25,6 +25,8 @@
 
 namespace WebMechanic\Converter\Kirby;
 
+use WebMechanic\Converter\Wordpress\Item;
+
 class Page extends Content
 {
 	protected $id = null;
@@ -99,5 +101,16 @@ class Page extends Content
 	{
 		$this->meta[$key] = $value;
 		return $this;
+	}
+
+	/**
+	 * Takes a Wordpress <item> of type "post" and reads properties to create
+	 * a Kirby Page file.
+	 *
+	 * @inheritDoc
+	 */
+	public function assign(Item $item)
+	{
+		// TODO: Implement assign() method.
 	}
 }

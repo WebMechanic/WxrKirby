@@ -23,6 +23,8 @@
 
 namespace WebMechanic\Converter\Kirby;
 
+use WebMechanic\Converter\Wordpress\Item;
+
 class Author extends Content
 {
 	/** @var string this could go into a "user.txt" for a valid Kirby account
@@ -140,5 +142,14 @@ class Author extends Content
 		$this->user['fullName'] = $this->user['firstName'] . ' ' . $this->user['lastName'];
 	}
 
+	/**
+	 * Takes a Wordpress <wp:author> and reads properties of that user/author.
+	 *
+	 * @param Item $item
+	 * @return Author
+	 */
+	public function assign(Item $item) {
+		return $this;
+	}
 }
 

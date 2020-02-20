@@ -10,6 +10,7 @@
 namespace WebMechanic\Converter\Kirby;
 
 use DOMNode;
+use WebMechanic\Converter\Wordpress\Item;
 
 /**
  * Transform a Wordpress content <item> into a Kirby content Site, File,
@@ -45,6 +46,14 @@ abstract class Content
 		}
 		return $this;
 	}
+
+	/**
+	 * Takes a Wordpress <item> and reads properties based on item type.
+	 *
+	 * @param Item $item
+	 * @return mixed
+	 */
+	abstract public function assign(Item $item);
 
 	/**
 	 * Sets a property value, delegates to available setters provided by
