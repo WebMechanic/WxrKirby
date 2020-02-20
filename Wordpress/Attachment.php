@@ -13,10 +13,18 @@ use DOMNode;
 
 class Attachment extends Post
 {
-	/** @var string wp:attachment_url */
+	/**
+	 * WP creates a public "attachment URL" for each upload.
+	 * These URLs are not automatically displayed or exposed per se but may
+	 * appear in manually entered image or download links in the HTML.
+	 * Review and configure Rewrite rules is Kirby\Content as you see fit.
+	 * @var string wp:attachment_url
+	 */
 	public $url;
 
-	/** @var string _wp_attached_file */
+	/**
+	 * @var string _wp_attached_file
+	 */
 	protected $image;
 
 	/**

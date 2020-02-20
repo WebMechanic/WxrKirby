@@ -19,8 +19,18 @@ use WebMechanic\Converter\Wordpress\Item;
 abstract class Content
 {
 	protected $contentPath = 'content/';
+
 	protected $filepath = '';
 	protected $filename = '';
+
+	/** @var string original WP URL of the item */
+	protected $sourceUrl = '';
+
+	/**
+	 * @var array PCRE patters to map WP with Kirby URLs
+	 * @see rewrite()
+	 */
+	protected $rewriteMap = ['\/slides\/.*' => '/gallery/{filepath}/{filename}'];
 
 	/** @var array */
 	protected $content = [];
@@ -170,5 +180,24 @@ abstract class Content
 	{
 		echo __METHOD__ . " -- copy {$filepath} somewhere", PHP_EOL;
 		return $this;
+	}
+
+	/**
+	 * Take the $link and $filepath of the ressource to create Apache Redirect
+	 * rules for some .htaccess. Uses the `permanent` redirect status (301) by
+	 * default to please search engines.
+	 *
+	 * - permanent: Returns a permanent redirect status (301) indicating that the resource has moved permanently.
+	 * - temp: Returns a temporary redirect status (302).
+	 * - seeother: Returns a "See Other" status (303) indicating that the resource has been replaced.
+	 * - gone: Returns a "Gone" status (410) indicating that the resource has been permanently removed.
+	 */
+	protected function rewrite($status = 'permanent')
+	{
+		$redir = $status ? 'RedirectPermanent' : 'Redirect seeother';
+		$uri   = $redir .' '. $this->sourceUrl .' '. $this->filepath;
+
+		echo $uri; // @fixme write to redirect.log file
+
 	}
 }
