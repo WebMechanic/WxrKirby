@@ -112,7 +112,7 @@ class Author extends Content
 
 	/**
 	 * @param string $firstName
-	 *
+	 * @uses setFullName()
 	 * @return Author
 	 */
 	public function setFirstName(string $firstName): Author
@@ -124,7 +124,7 @@ class Author extends Content
 
 	/**
 	 * @param string $lastName
-	 *
+	 * @uses setFullName()
 	 * @return Author
 	 */
 	public function setLastName(string $lastName): Author
@@ -135,7 +135,8 @@ class Author extends Content
 	}
 
 	/**
-	 * @param string $full_name
+	 * Concatenate $user['fullName'] from 'firstName' + 'lastName'.
+	 * @see setFirstName(), setLastName()
 	 */
 	public function setFullName(): void
 	{
@@ -143,6 +144,7 @@ class Author extends Content
 	}
 
 	/**
+	 * stub to satisfy Content interface.
 	 * @param Item $item
 	 * @return Author
 	 */

@@ -88,9 +88,11 @@ class Converter
 	protected static $options = [
 		'title' => 'Title',
 		'text' => 'Text',
-		'kirby_root' => __DIR__ .'/kirby/',
-		'content_dir' => null,
-		'site_dir' => null,
+		'paths' => [
+			'kirby' => __DIR__ . '/kirby/',
+			'content' => null,
+			'site' => null,
+		],
 		'delegate' => ['nav_menu_item' => null],
 		'discard' => ['wooframework', 'ngg_pictures', 'ngg_gallery', 'gal_display_source', 'slide', 'lightbox_library'],
 	];
@@ -109,11 +111,12 @@ class Converter
 	}
 
 	/**
-	 * @return array
+	 * @param string $key
+	 * @return mixed|null
 	 */
-	public function getOptions($group): array
+	public function getOption(string $key)
 	{
-		return static::$options[$group] = static::$options[$group] ?? [];
+		return static::$options[$key] = static::$options[$key] ?? null;
 	}
 
 	public function __destruct()
