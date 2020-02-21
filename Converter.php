@@ -61,6 +61,9 @@ class Converter
 	/** @var HtmlConverter */
 	static $HTML;
 
+	/** @var Converter */
+	public static $converter;
+
 	/**
 	 * Arbitrary plugin stuff or WP internals we don't care about.
 	 *
@@ -108,6 +111,16 @@ class Converter
 	protected function __construct(string $xml_path)
 	{
 		$this->WXR = new WXR($xml_path);
+		self::$converter = $this;
+
+		/* build paths */
+		if (empty($options['paths']['content'])) {
+			$options['paths']['content'] = $options['paths']['kirby'] . 'content';
+		}
+
+		if (empty($options['paths']['site'])) {
+			$options['paths']['site'] = $options['paths']['kirby'] . 'site';
+		}
 	}
 
 	/**
