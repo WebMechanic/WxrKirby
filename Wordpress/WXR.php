@@ -15,7 +15,6 @@ use DOMElement;
 use DOMDocument;
 
 use WebMechanic\Converter\Converter;
-use WebMechanic\Converter\Kirby\Author;
 
 /**
  * Class WXR
@@ -75,7 +74,7 @@ class WXR
 		$this->parseChannel($channel);
 
 		foreach ($this->document->getElementsByTagName('author') as $item) {
-			$this->parseAuthor($item);
+			$this->converter->setAuthor($item);
 		}
 
 		foreach ($this->document->getElementsByTagName('item') as $item) {
@@ -160,18 +159,5 @@ class WXR
 		return $this;
 	}
 
-	/**
-	 * @param DOMElement $wp_author
-	 *
-	 * @return WXR
-	 * @uses \WebMechanic\Converter\Kirby\Author
-	 */
-	protected function parseAuthor(DOMElement $wp_author): WXR
-	{
-		$author = new Author();
-		$author->parseNode($wp_author);
-		$this->converter->setAuthor($author);
-		return $this;
-	}
 }
 

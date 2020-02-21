@@ -21,6 +21,7 @@
 
 namespace WebMechanic\Converter;
 
+use DOMElement;
 use Kirby\Cms\App;
 
 use League\HTMLToMarkdown\HtmlConverter as HtmlConverter;
@@ -46,7 +47,7 @@ class Converter
 	/** @var array  list of WebMechanic\Kirby\Pages from Wordpress\Post's */
 	protected $pages = [];
 
-	/** @var array  list of WebMechanic\Kirby\Author / Wordpress usernames */
+	/** @var array  list of WebMechanic\Kirby\Author from Wordpress usernames */
 	protected $authors = [];
 
 	/** @var array  list of WebMechanic\Kirby\Files (assets) / Wordpress\Attachment's */
@@ -236,14 +237,15 @@ class Converter
 
 	/**
 	 * Store a new Kirby\Author derived from a Wordpress user.
-	 * The <dc:creator> of an item refers to the username, so this is used as the key.
+	 * The <dc:creator> of an <item> refers to the username, so this is used as the key.
 	 *
-	 * @param Author $author
-	 *
+	 * @param DOMElement $wp_author
 	 * @return Converter
 	 */
-	public function setAuthor(Author $author): Converter
+	public function setAuthor(DOMElement $wp_author): Converter
 	{
+		$author = new Author();
+		$author->parseNode($wp_author);
 		$this->authors[$author->getUsername()] = $author;
 		return $this;
 	}
