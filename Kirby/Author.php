@@ -5,7 +5,7 @@
  * a Kirby username.
  * <b>Your Kirby accounts won't be touched nor will this create new accounts!</b>
  * Names are used during the transform process and are then simply stored
- * in the site folder as `authors.md`.
+ * in the site folder as `{username}.txt`.
  * You can use this to translate all Wordpress "admin" users to you (new)
  * actual Kirby username/author of the target site in order to display their
  * names with the content or to manage editing rights.
@@ -29,7 +29,7 @@ class Author extends Content
 {
 	/** @var string this could go into a "user.txt" for a valid Kirby account
 	  * @see setLogin() */
-	protected $filename = '{username}.md';
+	protected $filename = '{username}.txt';
 
 	/** @var string target path where the generated user data is temporarily saved */
 	protected $contentPath = 'site/accounts/';

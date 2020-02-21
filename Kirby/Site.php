@@ -1,6 +1,6 @@
 <?php
 /**
- * Collected data from the Wordpress XML export useful for `site.md`.
+ * Collected data from the Wordpress XML export useful for `site.txt`.
  * channel > title            : title
  * channel > base_site_url    : url
  * channel > language        : locale  "xx-YY" (de-DE, en-GB, fr-CN)
@@ -17,13 +17,14 @@ use WebMechanic\Converter\Wordpress\Channel;
 
 class Site extends Content
 {
-	/** This is like Kirby's `site.md` and will end up in the same folder.
+	/**
+	 * This is like Kirby's `site.txt` and will end up in the same folder.
 	 * It's using a different name 'cos accidents happen...
 	 *
 	 * @see setFilename();
 	 * @var string Wordpress Site metadata useful for Kirby
 	 */
-	protected $filename = 'wordpress.md';
+	protected $filename = 'wordpress.txt';
 
 	/** @var string Website Title */
 	protected $title;

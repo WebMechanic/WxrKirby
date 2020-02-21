@@ -177,7 +177,7 @@ class Converter
 	}
 
 	/**
-	 * Assign a Site object to write information into `site.md`.
+	 * Assign a Site object to write information into `site.txt`.
 	 *
 	 * @param Item $site
 	 *
