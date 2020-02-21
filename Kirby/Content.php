@@ -18,10 +18,10 @@ use WebMechanic\Converter\Converter;
  */
 abstract class Content
 {
-	protected $contentPath = 'content/';
-
+	protected $contentPath = '';
 	protected $filepath = '';
 	protected $filename = '';
+	protected $ext = '.txt';
 
 	/** @var string original WP URL of the item */
 	protected $sourceUrl = '';
@@ -38,21 +38,8 @@ abstract class Content
 	/** @var DOMNode */
 	protected $node;
 
-	/** @var Converter */
-	protected $converter;
-
 	/** @var array reg_replace node prefixes */
 	protected $prefixFilter = '//';
-
-	/**
-	 * Content constructor.
-	 *
-	 * @param Converter $converter
-	 */
-	public function __construct(Converter $converter)
-	{
-		$this->converter = $converter;
-	}
 
 	/**
 	 * Override in subclasses.
@@ -165,20 +152,9 @@ abstract class Content
 	 */
 	public function getContentPath(): string
 	{
+		$paths = Converter::$converter->getOption('paths');
+		$this->contentPath = $paths['content'];
 		return $this->contentPath;
-	}
-
-	/**
-	 * The target folder for all the lovely migrated content files.
-	 *
-	 * @param string $contentPath
-	 *
-	 * @return Content
-	 */
-	public function setContentPath(string $contentPath): Content
-	{
-		$this->contentPath = $contentPath;
-		return $this;
 	}
 
 	/**
@@ -193,6 +169,11 @@ abstract class Content
 	{
 		echo __METHOD__ . " -- copy {$filepath} somewhere", PHP_EOL;
 		return $this;
+	}
+
+	public function writeOutput()
+	{
+
 	}
 
 	/**

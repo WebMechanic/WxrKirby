@@ -25,6 +25,7 @@
 
 namespace WebMechanic\Converter\Kirby;
 
+use WebMechanic\Converter\Converter;
 use WebMechanic\Converter\Wordpress\Post;
 
 class Page extends Content
@@ -33,6 +34,7 @@ class Page extends Content
 
 	/** Kirby system fields */
 	private $blueprint = 'default';
+	protected $filename = 'default.txt';
 
 	/**
 	 * @var array A collection of Kirby_File based on post_type:attachment
@@ -54,6 +56,7 @@ class Page extends Content
 	public function setBlueprint(string $blueprint): Page
 	{
 		$this->blueprint = $blueprint;
+		$this->filename = $blueprint . '.txt';
 		return $this;
 	}
 
@@ -75,6 +78,16 @@ class Page extends Content
 		$hash = crc32($file->filepath . $file->filename);
 		$this->files[$hash] = $file;
 		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContentPath(): string
+	{
+		$paths = Converter::$converter->getOption('paths');
+		$this->contentPath = $paths['content'];
+		return $this->contentPath;
 	}
 
 	/**

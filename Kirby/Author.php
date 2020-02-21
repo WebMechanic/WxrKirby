@@ -31,9 +31,6 @@ class Author extends Content
 	  * @see setLogin() */
 	protected $filename = '{username}.txt';
 
-	/** @var string target path where the generated user data is temporarily saved */
-	protected $contentPath = 'site/accounts/';
-
 	/** @var int Author ID from Wordpress */
 	protected $id;
 	/** @var int hash key from existing Kirby Account */

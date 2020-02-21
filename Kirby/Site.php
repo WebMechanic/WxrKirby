@@ -13,6 +13,7 @@
 
 namespace WebMechanic\Converter\Kirby;
 
+use WebMechanic\Converter\Converter;
 use WebMechanic\Converter\Wordpress\Channel;
 
 class Site extends Content
@@ -66,6 +67,16 @@ class Site extends Content
 	public function getBlueprint(string $path): string
 	{
 		return $this->blueprints[$path];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContentPath(): string
+	{
+		$paths = Converter::$converter->getOption('paths');
+		$this->contentPath = $paths['site'];
+		return $this->contentPath;
 	}
 
 	/**
