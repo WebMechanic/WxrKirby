@@ -40,7 +40,7 @@ class Converter
 	/** @var WXR $WXR access to WXR date */
 	protected $WXR;
 
-	/** @var Channel $site possible Wordpress settings useful for Kirby's `site.md` */
+	/** @var Channel $site possible Wordpress settings useful for Kirby's `site.txt` */
 	protected $site = null;
 
 	/** @var array  list of WebMechanic\Kirby\Pages from Wordpress\Post's */

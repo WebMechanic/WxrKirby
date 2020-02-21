@@ -143,12 +143,10 @@ class Author extends Content
 	}
 
 	/**
-	 * Takes a Wordpress <wp:author> and reads properties of that user/author.
-	 *
 	 * @param Item $item
 	 * @return Author
 	 */
-	public function assign(Item $item) {
+	public function assign($item) {
 		return $this;
 	}
 }

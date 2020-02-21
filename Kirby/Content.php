@@ -60,10 +60,10 @@ abstract class Content
 	/**
 	 * Takes a Wordpress <item> and reads properties based on item type.
 	 *
-	 * @param Item $item
+	 * @param mixed $item some Item derivative
 	 * @return mixed
 	 */
-	abstract public function assign(Item $item);
+	abstract public function assign($item);
 
 	/**
 	 * Sets a property value, delegates to available setters provided by

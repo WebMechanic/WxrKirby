@@ -13,12 +13,14 @@
 
 namespace WebMechanic\Converter\Kirby;
 
+use WebMechanic\Converter\Wordpress\Channel;
+
 class Site extends Content
 {
 	/** This is like Kirby's `site.md` and will end up in the same folder.
 	 * It's using a different name 'cos accidents happen...
 	 *
-	 * @see setSiteFilename();
+	 * @see setFilename();
 	 * @var string Wordpress Site metadata useful for Kirby
 	 */
 	protected $filename = 'wordpress.md';
@@ -31,6 +33,15 @@ class Site extends Content
 
 	/** @var array  blueprints per path/URL */
 	private $blueprints = ['/' => 'default'];
+
+	/**
+	 * @param Channel $item
+	 * @return mixed|void
+	 */
+	public function assign($item)
+	{
+		// TODO: Implement assign() method.
+	}
 
 	/**
 	 * Add the name of a $blueprint file to be used for content of the given $path

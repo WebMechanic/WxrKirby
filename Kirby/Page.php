@@ -1,7 +1,7 @@
 <?php
 /**
  * Transforms item elements of type `<wp:post_type>page`
- * Creates `default.md` or as given by $blueprint property.
+ * Creates `default.txt` or as given by $blueprint property.
  *
  * item > title           : title
  * item > link            : url            - [M] used to build redirect rules
@@ -25,7 +25,7 @@
 
 namespace WebMechanic\Converter\Kirby;
 
-use WebMechanic\Converter\Wordpress\Item;
+use WebMechanic\Converter\Wordpress\Post;
 
 class Page extends Content
 {
@@ -107,9 +107,9 @@ class Page extends Content
 	 * Takes a Wordpress <item> of type "post" and reads properties to create
 	 * a Kirby Page file.
 	 *
-	 * @inheritDoc
+	 * @param Post $item
 	 */
-	public function assign(Item $item)
+	public function assign($item)
 	{
 		// TODO: Implement assign() method.
 	}
