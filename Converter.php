@@ -28,7 +28,6 @@ use League\HTMLToMarkdown\HtmlConverter as HtmlConverter;
 use WebMechanic\Converter\Kirby\Author;
 use WebMechanic\Converter\Wordpress\Attachment;
 use WebMechanic\Converter\Wordpress\Channel;
-use WebMechanic\Converter\Wordpress\Item;
 use WebMechanic\Converter\Wordpress\Post;
 use WebMechanic\Converter\Wordpress\WXR;
 
@@ -39,7 +38,7 @@ use WebMechanic\Converter\Wordpress\WXR;
 class Converter
 {
 	/** @var WXR $WXR access to WXR date */
-	protected $WXR;
+	protected $WXR = null;
 
 	/** @var Channel $site possible Wordpress settings useful for Kirby's `site.txt` */
 	protected $site = null;
@@ -65,8 +64,11 @@ class Converter
 	/**
 	 * Arbitrary plugin stuff or WP internals we don't care about.
 	 *
-	 * TITLE: Kirby Field used to store the Post title
-	 * TEXT: Kirby Field used to store the Post content
+	 * title: Kirby Field used to store the Post title
+	 * text: Kirby Field used to store the Post content
+	 * kirby_root: root folder of Kirby installation (contains 'content' and #site ' folders)
+	 * content_dir: alternative path for content output files
+	 * site_dir: alternative path for blueprint and account output files
 	 *
 	 * DELEGATE: XML Element names handled by specific classes.
 	 * 'nav_menu_item': The WP Mainmenu.
@@ -80,11 +82,15 @@ class Converter
 	 * 'ngg_pictures', 'ngg_gallery', 'gal_display_source',
 	 * 'slide', 'lightbox_library': gallery stuff
 	 * 'wooframework': a fat staple in WP installations
+	 *
 	 * @see getOption()
 	 */
 	protected static $options = [
 		'title' => 'Title',
 		'text' => 'Text',
+		'kirby_root' => __DIR__ .'/kirby/',
+		'content_dir' => null,
+		'site_dir' => null,
 		'delegate' => ['nav_menu_item' => null],
 		'discard' => ['wooframework', 'ngg_pictures', 'ngg_gallery', 'gal_display_source', 'slide', 'lightbox_library'],
 	];
@@ -170,9 +176,9 @@ class Converter
 	}
 
 	/**
-	 * @return Item
+	 * @return Channel
 	 */
-	public function getSite(): Item
+	public function getSite(): Channel
 	{
 		return $this->site;
 	}
@@ -180,7 +186,7 @@ class Converter
 	/**
 	 * Assign a Site object to write information into `site.txt`.
 	 *
-	 * @param Item $site
+	 * @param Channel $site
 	 *
 	 * @return Converter
 	 */
