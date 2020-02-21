@@ -10,7 +10,7 @@
 namespace WebMechanic\Converter\Kirby;
 
 use DOMNode;
-use WebMechanic\Converter\Wordpress\Item;
+use WebMechanic\Converter\Converter;
 
 /**
  * Transform a Wordpress content <item> into a Kirby content Site, File,
@@ -38,8 +38,21 @@ abstract class Content
 	/** @var DOMNode */
 	protected $node;
 
+	/** @var Converter */
+	protected $converter;
+
 	/** @var array reg_replace node prefixes */
 	protected $prefixFilter = '//';
+
+	/**
+	 * Content constructor.
+	 *
+	 * @param Converter $converter
+	 */
+	public function __construct(Converter $converter)
+	{
+		$this->converter = $converter;
+	}
 
 	/**
 	 * Override in subclasses.
