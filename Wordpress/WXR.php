@@ -10,7 +10,6 @@
 
 namespace WebMechanic\Converter\Wordpress;
 
-use DOMNode;
 use DOMElement;
 use DOMDocument;
 
@@ -71,7 +70,7 @@ class WXR
 	{
 		$this->converter = $converter;
 		$channel         = $this->document->getElementsByTagName('channel')->item(0);
-		$this->parseChannel($channel);
+		$this->converter->setSite(new Channel($channel, $this));
 
 		foreach ($this->document->getElementsByTagName('author') as $item) {
 			$this->converter->setAuthor($item);
@@ -96,17 +95,6 @@ class WXR
 	public function getConverter(): Converter
 	{
 		return $this->converter;
-	}
-
-	/**
-	 * @param DOMNode $channel
-	 * @return WXR
-	 * @uses Item
-	 */
-	protected function parseChannel(DOMNode $channel): WXR
-	{
-		$this->converter->setSite(new Channel($channel, $this));
-		return $this;
 	}
 
 	/**
