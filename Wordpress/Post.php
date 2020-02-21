@@ -310,10 +310,4 @@ class Post extends Item
 		return $this;
 	}
 
-	public function toKirby()
-	{
-		return sprintf('# Kirbyfy Post [%s]: %d %s' . PHP_EOL,
-			$this->type, $this->id, $this->title);
-	}
-
 }

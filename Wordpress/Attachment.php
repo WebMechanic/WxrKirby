@@ -138,11 +138,4 @@ class Attachment extends Post
 	{
 		return $this->_wp_attachment_metadata($value);
 	}
-
-	public function toKirby()
-	{
-		return sprintf('# Kirbyfy Attachment: %d "%s"' . PHP_EOL . '  %s' . PHP_EOL,
-			$this->id, $this->title, $this->filepath);
-	}
-
 }

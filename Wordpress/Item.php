@@ -10,7 +10,6 @@
 namespace WebMechanic\Converter\Wordpress;
 
 use DOMNode;
-use BadMethodCallException;
 use WebMechanic\Converter\Converter;
 use WebMechanic\Converter\Kirby\Author;
 use WebMechanic\Converter\Transform;
@@ -238,13 +237,5 @@ MD;
 		$this->fields[$fieldname] = [$value, $content];
 
 		return $this;
-	}
-
-	/**
-	 * throws BadMethodCallException implement in subclass
-	 */
-	public function toKirby()
-	{
-		throw new BadMethodCallException('Methode ' . __METHOD__ . ' muss in Subklasse implementiert werden.', 666);
 	}
 }
