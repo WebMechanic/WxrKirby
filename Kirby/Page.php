@@ -120,10 +120,16 @@ class Page extends Content
 	 * Takes a Wordpress <item> of type "post" and reads properties to create
 	 * a Kirby Page file.
 	 *
-	 * @param Post $item
+	 * @param Post $post
 	 */
-	public function assign($item)
+	public function assign($post)
 	{
 		// TODO: Implement assign() method.
 	}
+
+	public function writeOutput()
+	{
+		// TODO: Implement writeOutput() method.
+	}
+
 }

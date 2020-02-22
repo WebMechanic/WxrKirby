@@ -35,10 +35,10 @@ abstract class Content
 	/** @var array */
 	protected $content = [];
 
-	/** @var DOMNode */
-	protected $node;
+	/** @var array */
+	protected $fields = [];
 
-	/** @var array reg_replace node prefixes */
+	/** @var array preg_replace to normalise element name prefixes */
 	protected $prefixFilter = '//';
 
 	/**
@@ -50,7 +50,6 @@ abstract class Content
 	public function parseNode(DOMNode $node)
 	{
 		$node->normalize();
-		$this->node = $node;
 		foreach ($node->childNodes as $elt) {
 			$this->set($elt->localName, $elt->textContent);
 		}
@@ -102,13 +101,6 @@ abstract class Content
 		return (isset($this->{$name})) ? $this->{$name} : null;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getFilename(): string
-	{
-		return $this->filename;
-	}
 
 	/**
 	 * Sets the filename of the (currently) active migration content.
@@ -120,17 +112,11 @@ abstract class Content
 	 */
 	public function setFilename(string $filename): Content
 	{
-		$this->filename = $filename;
+		$this->filename = basename($filename);
+		$this->filepath = $this->getContentPath() .'/'. $this->filename;
 		return $this;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getFilepath(): string
-	{
-		return $this->filepath;
-	}
 
 	/**
 	 * Sets the filepath, usually within `content/` of the (currently) active
@@ -171,10 +157,7 @@ abstract class Content
 		return $this;
 	}
 
-	public function writeOutput()
-	{
-
-	}
+	abstract public function writeOutput();
 
 	/**
 	 * Take the $link and $filepath of the ressource to create Apache Redirect

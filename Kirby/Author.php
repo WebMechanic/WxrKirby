@@ -43,7 +43,7 @@ class Author extends Content
 	/** @var array  Account data (user.txt) */
 	protected $user = ['firstName'=>null, 'lastName'=>null, 'fullName'=>null];
 
-	/** @var array  */
+	/** @var array normalise all author_xx element names */
 	protected $prefixFilter = '/^author_?/';
 
 	/**
@@ -142,11 +142,17 @@ class Author extends Content
 
 	/**
 	 * stub to satisfy Content interface.
-	 * @param Item $item
+	 * @param Item $author
 	 * @return Author
 	 */
-	public function assign($item) {
+	public function assign($author) {
 		return $this;
+	}
+
+	/** @todo Implement writeOutput() method. */
+	public function writeOutput()
+	{
+		echo 'Author::writeOutput() ', $this->user['fullName'], PHP_EOL;
 	}
 }
 

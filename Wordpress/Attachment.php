@@ -27,28 +27,8 @@ class Attachment extends Post
 	 */
 	protected $image;
 
-	/**
-	 * Gets a `<wp:postmeta>` element for use as image sidecar files.
-	 *
-	 * The element consists of two children. Their value goes into $meta:
-	 * - firstChild: <wp:meta_key> '_wp_attached_file|_wp_attachment_metadata'
-	 * - lastChild : <wp:meta_value>  string|serialized array of an image attachment
-	 *
-	 * @param DOMNode $meta
-	 * @return Attachment
-	 */
-	public function setMetadata(DOMNode $meta): Attachment
-	{
-		/** @var string <wp:meta_key> => '_wp_attached_file', '_wp_attachment_metadata' */
-		$key = $meta->firstChild->textContent;
-
-		if (method_exists($this, $key)) {
-			/** @var string <wp:meta_value> */
-			$value = $meta->lastChild->textContent;
-			$this->{$key}($value);
-		}
-		return $this;
-	}
+	/** @var array preg_replace node name prefixes to simplify setters */
+	protected $prefixFilter = '/^(post|attachment)_?/';
 
 	/**
 	 * Attachments in WP reside in `wp-content/uploads/YYYY/MMM/`. This removes
@@ -58,10 +38,10 @@ class Attachment extends Post
 	 * @return Attachment
 	 * @see _wp_attached_file().
 	 */
-	public function setAttachmentUrl(DOMNode $elt): Attachment
+	public function setUrl(DOMNode $elt): Attachment
 	{
-		$baseUrl     = $this->site()->url;
-		$this->image = str_replace($baseUrl, '', $elt->textContent);
+		$url         = $this->cleanUrl($elt->textContent);
+		$this->image = str_replace($this->site()->url, '', $url);
 		return $this;
 	}
 
@@ -90,20 +70,17 @@ class Attachment extends Post
 
 	/**
 	 * Usually the relative upload path of an attachment/uploaded file.
-	 * A full qualified URL is also given in @param string $value
+	 * A full qualified URL is also given in
 	 *
+	 * @param DOMNode $elt
 	 * @return Attachment
-	 * @see setAttachmentUrl().
-	 *
+	 * @see setUrl()
 	 */
-	private function _wp_attached_file(string $value): Attachment
+	public function setAttachedFile(DOMNode $elt): Attachment
 	{
-		$this->filepath = $value;
+		$this->setFilepath($elt->textContent);
+
 		return $this;
-	}
-	public function setAttachedFile(string $value): Attachment
-	{
-		return $this->_wp_attached_file($value);
 	}
 
 	/**
@@ -123,19 +100,13 @@ class Attachment extends Post
 	 *     - height
 	 * - image_meta  (IPTC etc.)
 	 *
-	 * @param string $value
-	 *
+	 * @param DOMNode $elt
 	 * @return Attachment
 	 */
-	private function _wp_attachment_metadata(string $value): Attachment
+	public function setAttachmentMetadata(DOMNode $elt): Attachment
 	{
 		// @todo split into sidecar file (Transform?), IPTC etc.
-		$this->meta['metadata']  = unserialize($value);
-
+		$this->meta['metadata']  = unserialize($elt->textContent);
 		return $this;
-	}
-	public function setAttachmentMetadata(string $value): Attachment
-	{
-		return $this->_wp_attachment_metadata($value);
 	}
 }

@@ -10,23 +10,20 @@
 
 namespace WebMechanic\Converter\Kirby;
 
-use WebMechanic\Converter\Wordpress\Item;
-
 class File extends Content
 {
 	/**
 	 * Takes a Wordpress <item> of type "attachment" and reads properties
 	 * to copy files into the Kirby site.
-	 *
-	 * @inheritDoc
 	 */
-	public function assign(Item $item)
+	public function assign($item)
 	{
 		// TODO: Implement assign() method.
 	}
-}
 
-class Image extends File
-{
+	/** @todo Implement writeOutput() method. */
+	public function writeOutput()
+	{
+		echo 'File::writeOutput() ', $this->user['fullName'], PHP_EOL;
+	}
 }
-

@@ -9,6 +9,7 @@
 
 namespace WebMechanic\Converter\Wordpress;
 
+use DOMElement;
 use DOMNode;
 use WebMechanic\Converter\Meta;
 
@@ -35,6 +36,9 @@ class Post extends Item
 	/** @var string */
 	public $filepath;
 
+	/** @var string Post template for a potential Kirby Blueprint */
+	protected $template = 'default';
+
 	/** @var string wp:status publish|draft|inherit */
 	protected $status;
 
@@ -44,9 +48,6 @@ class Post extends Item
 	protected $tags;
 	/** @var array */
 	protected $categories;
-
-	/** @var array reg_replace node prefixes to simplify setters */
-	protected $prefixFilter = '/^post_?/';
 
 	/** @var int bit mask for HTML parser hints */
 	protected $hints = 0;
@@ -187,6 +188,8 @@ class Post extends Item
 	public function setDateGmt(DOMNode $elt): Post
 	{
 		$this->date = $elt->textContent;
+		unset($this->fields['pubDate']);
+		unset($this->fields['date']);
 		return $this;
 	}
 
@@ -203,13 +206,11 @@ class Post extends Item
 
 	/**
 	 * @param DOMNode $link
-	 * @param bool    $transformOnly
 	 * @return Item
 	 */
-	public function setLink(DOMNode $link, $transformOnly = false): Item
+	public function setLink(DOMNode $link): Item
 	{
-		parent::setLink($link, $transformOnly);
-
+		parent::setLink($link);
 		$this->setFilepath($this->link);
 
 		return $this;
@@ -234,13 +235,12 @@ class Post extends Item
 	/**
 	 * Called on `<wp:postmeta>` and it's childNodes <wp:meta_key>, <wp:meta_value>
 	 * Keys:
-	 * - @see _wp_page_template()  potential blueprint filename in Kirby
-	 * - @see Attachment::_wp_attached_file()  relative file path
-	 * - @see Attachment::_wp_attachment_metadata()  serialized array with image meta data
 	 * - _edit_last         edit history count?
 	 * - seo_follow         false|true
 	 * - seo_noindex        false|true
 	 * - "Custom Fieldname" @see Meta
+	 * - @see Attachment::setAttachedFile()  relative file path
+	 * - @see Attachment::setAttachmentMetadata()  serialized array with image meta data
 	 *
 	 * @param DOMNode $elt
 	 *
@@ -253,11 +253,16 @@ class Post extends Item
 		/** @var string <wp:meta_value> */
 		$value = $elt->childNodes->item(1)->textContent;
 
-		// Attachment
-		if (method_exists($this, 'setMetadata')) {
-			return $this->setMetadata($elt);
-		} else {
-			$this->meta[$key] = $value;
+		switch ($key)
+		{
+		case 'seo_follow':
+		case 'seo_noindex':
+			$key = str_replace('seo_', '', $key);
+			$this->meta[$key] = $value === 'true' ? true : false;
+			break;
+		default:
+			$node  = new DOMElement($key, $value);
+			$this->set($node, 'meta');
 		}
 
 		return $this;
@@ -304,9 +309,9 @@ class Post extends Item
 	 * @param string $value
 	 * @return Post
 	 */
-	private function _wp_page_template(string $value): Post
+	private function setTemplate(string $value): Post
 	{
-		$this->data['blueprint'] = $value;
+		$this->template = $value;
 		return $this;
 	}
 

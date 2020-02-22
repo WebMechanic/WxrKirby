@@ -71,14 +71,6 @@ class Channel extends Item
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getUrl(): string
-	{
-		return $this->url;
-	}
-
-	/**
 	 * Sets the site's URL using <wp:base_site_url> and applies the same URL
 	 * transformation as Item::setLink().
 	 * This element usually follows <channel><link> in a standard WXR export.
@@ -93,8 +85,7 @@ class Channel extends Item
 	{
 		// the "original" <channel><link> is already done, but
 		// this will use <wp:base_site_url> for the transform
-		$this->setLink($url, true);
-		$this->url = $url->textContent;;
+		$this->url = $this->cleanUrl($url->textContent);
 		return $this;
 	}
 
@@ -113,8 +104,7 @@ class Channel extends Item
 	{
 		// the "original" <channel><link> is already done, but
 		// this will use <wp:base_site_url> for the transform
-		$this->setLink($url, true);
-		$this->blogUrl = $url->textContent;
+		$this->blogUrl = $this->cleanUrl($url->textContent);
 
 		return $this;
 	}

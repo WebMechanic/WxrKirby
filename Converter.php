@@ -26,6 +26,7 @@ use Kirby\Cms\App;
 
 use League\HTMLToMarkdown\HtmlConverter as HtmlConverter;
 use WebMechanic\Converter\Kirby\Author;
+use WebMechanic\Converter\Kirby\Site;
 use WebMechanic\Converter\Wordpress\Attachment;
 use WebMechanic\Converter\Wordpress\Channel;
 use WebMechanic\Converter\Wordpress\Post;
@@ -40,7 +41,7 @@ class Converter
 	/** @var WXR $WXR access to WXR date */
 	protected $WXR = null;
 
-	/** @var Channel $site possible Wordpress settings useful for Kirby's `site.txt` */
+	/** @var Site $site the Kirby\Site `site.txt` with possible useful Wordpress settings */
 	protected $site = null;
 
 	/** @var array  list of WebMechanic\Kirby\Pages from Wordpress\Post's */
@@ -115,11 +116,11 @@ class Converter
 
 		/* build paths */
 		if (empty($options['paths']['content'])) {
-			$options['paths']['content'] = $options['paths']['kirby'] . 'content';
+			static::$options['paths']['content'] = static::$options['paths']['kirby'] . 'content';
 		}
 
 		if (empty($options['paths']['site'])) {
-			$options['paths']['site'] = $options['paths']['kirby'] . 'site';
+			static::$options['paths']['site'] = static::$options['paths']['kirby'] . 'site';
 		}
 	}
 
@@ -158,14 +159,14 @@ class Converter
 	}
 
 	/**
-	 * @param string $name an element name incl. its namespace / or a suitable key
+	 * @param string $elementName an element name incl. its namespace / or a suitable key
 	 *
 	 * @return Transform
 	 */
-	public function getTransform(string $name): Transform
+	public function getTransform(string $elementName): Transform
 	{
-		if (isset($this->transforms[$name])) {
-			return $this->transforms[$name];
+		if (isset($this->transforms[$elementName])) {
+			return $this->transforms[$elementName];
 		}
 		// empty to allow chaining w/o causing any harm.
 		return new Transform();
@@ -192,9 +193,9 @@ class Converter
 	}
 
 	/**
-	 * @return Channel
+	 * @return Site
 	 */
-	public function getSite(): Channel
+	public function getSite(): Site
 	{
 		return $this->site;
 	}
@@ -208,7 +209,9 @@ class Converter
 	 */
 	public function setSite(Channel $site): Converter
 	{
-		$this->site = $site;
+		$this->site = new Site();
+		$this->site->assign($site);
+
 		return $this;
 	}
 

@@ -31,18 +31,51 @@ class Site extends Content
 	protected $title;
 
 	/** @var string Website URL taken from <channel><link> */
-	private $url;
+	protected $url;
 
 	/** @var array  blueprints per path/URL */
-	private $blueprints = ['/' => 'default'];
+	protected $blueprints = ['/' => 'default'];
 
 	/**
-	 * @param Channel $item
+	 * @param Channel $channel
 	 * @return mixed|void
 	 */
-	public function assign($item)
+	public function assign($channel)
 	{
-		// TODO: Implement assign() method.
+		$this->title     = $channel->title;
+		$this->sourceUrl = $channel->url;
+		$this->url       = $channel->link;
+		$this->fields    = $channel->fields;
+	}
+
+	public function writeOutput()
+	{
+		$content = <<<OUT
+Title: {$this->title}
+---- 
+URL: {$this->url}
+---- 
+Link: {$this->sourceUrl}
+----
+
+OUT;
+
+		foreach ($this->fields as $field => $data)
+		{
+			if (is_array($data)) {
+				$data = $data[0];
+			}
+			$field = ucfirst($field);
+			$content .= <<<OUT
+{$field}: {$data}
+----
+
+OUT;
+
+		}
+		echo $this->filepath, PHP_EOL,
+		$content, PHP_EOL
+		, PHP_EOL;
 	}
 
 	/**

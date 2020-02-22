@@ -11,8 +11,9 @@ namespace WebMechanic\Converter\Wordpress;
 
 use DOMNode;
 use WebMechanic\Converter\Converter;
-use WebMechanic\Converter\Kirby\Author;
 use WebMechanic\Converter\Transform;
+use WebMechanic\Converter\Kirby\Author;
+use WebMechanic\Converter\Kirby\Site;
 
 class Item
 {
@@ -39,8 +40,8 @@ class Item
 	/** @var Transform the current element's transform, if any */
 	protected $transform;
 
-	/** @var array reg_replace node prefixes to simplify setters */
-	protected $prefixFilter = '//';
+	/** @var array preg_replace node name prefixes to simplify setters */
+	protected $prefixFilter = '/^_wp_?/';
 
 	/**
 	 * Wordpress Item constructor.
@@ -51,6 +52,13 @@ class Item
 	function __construct(DOMNode $node, WXR $XML = null)
 	{
 		$this->XML = $XML;
+
+		if (!isset($this->prefixFilter)) {
+			$name               = explode('\\', strtolower(get_class($this)));
+			$name               = array_pop($name);
+			$this->prefixFilter = "/^{$name}_?/";
+		}
+
 		$this->parse($node);
 	}
 
@@ -82,18 +90,18 @@ class Item
 	 * @return Item
 	 * @todo apply Transforms when setting a property @see Kirby\Content::set()
 	 */
-	public function set(DOMNode $elt, $store = 'data'): Item
+	public function set(DOMNode $elt, $store = 'fields'): Item
 	{
 		$prop = $elt->localName;
 
 		/* setContent() <content:encoded>, setExcerpt() <excerpt:encoded> */
 		if ($elt->localName == 'encoded') {
-			$prop = ucfirst($elt->prefix);
+			$prop = $elt->prefix;
 		}
 
 		/* author_id/post_id = id, post_parent = parent, postmeta = meta */
-		$method = preg_replace($this->prefixFilter, '', $prop);
-
+		$prop   = preg_replace($this->prefixFilter, '', $prop);
+		$method = preg_replace('/^_wp_?/', '', $prop);
 		$method = 'set' . ucwords($method, '_');
 		$method = str_replace('_', '', $method);
 
@@ -112,8 +120,6 @@ class Item
 			// vanilla assignment
 			$this->transform->apply($elt, $this);
 			$this->{$store}[$prop] = $elt->textContent;
-//		} else {
-//			echo "~ $prop ** EMPTY ** [", $elt->textContent, "]", PHP_EOL;
 		}
 
 		return $this;
@@ -150,28 +156,36 @@ class Item
 	}
 
 	/**
-	 * Have base URLs use HTTPS and drop 'www' hostname.
 	 * Applies to <link> (channel, item), <wp:base_site_url>, <wp:base_blog_url>.
-	 * Set `$transformOnly = true` to use this method as a general utility
-	 * to ONLY modify the `$link->textContent` w/o changing the $link property
-	 * of $this object; i.e. @param DOMNode $link
+	 *
+	 * @param DOMNode $link
 	 *
 	 * @return Item
 	 * @see  Channel::setBaseSiteUrl().
-	 *
-	 * @todo use config options to: enable HTTPS, enable www removal, replace domainname
 	 */
-	public function setLink(DOMNode $link, $transformOnly = false): Item
+	public function setLink(DOMNode $link): Item
 	{
-		// HTTPS
-		$link->textContent = str_replace('http:', 'https:', $link->textContent);
-		// no 'www'
-		$link->textContent = str_replace('://www.', '://', $link->textContent);
-
-		if ($transformOnly) return $this;
+		$link->textContent = $this->cleanUrl($link->textContent);
 
 		$this->link = $link->textContent;
 		return $this;
+	}
+
+	/**
+	 * Have base URLs use HTTPS and drop 'www' hostname.
+	 *
+	 * @param string $url
+	 * @return string
+	 * @todo use config options to: enable HTTPS, enable www removal, replace domainname
+	 */
+	public function cleanUrl(string $url): string
+	{
+		// HTTPS
+		$url = str_replace('http:', 'https:', $url);
+		// no 'www'
+		$url = str_replace('://www.', '://', $url);
+
+		return $url;
 	}
 
 	/**
@@ -201,7 +215,7 @@ class Item
 		return $this->XML->getConverter();
 	}
 
-	public function site(): Item
+	public function site(): Site
 	{
 		return $this->XML->getConverter()->getSite();
 	}
@@ -224,17 +238,9 @@ class Item
 	 */
 	public function addField(string $fieldname, string $value): Item
 	{
-		$fieldname = ucfirst($fieldname);
-		$content   = $value;
-		$content   = str_replace(array('<![CDATA[', ']]>'), '', $content);
-		$content   = <<<MD
-{$fieldname} :
-{$content}
-
-----
-
-MD;
-		$this->fields[$fieldname] = [$value, $content];
+		$fieldname                = ucfirst($fieldname);
+		$content                  = str_replace(array('<![CDATA[', ']]>'), '', $value);
+		$this->fields[$fieldname] = [$content, $value];
 
 		return $this;
 	}
