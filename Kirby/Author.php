@@ -152,7 +152,19 @@ class Author extends Content
 	/** @todo Implement writeOutput() method. */
 	public function writeOutput()
 	{
-		echo 'Author::writeOutput() ', $this->user['fullName'], PHP_EOL;
+		echo <<<ACCOUNT
+Username: $this->username
+----
+Firstname: {$this->user['firstName']}
+----
+Lastname: {$this->user['lastName']}
+----
+Fullname: {$this->user['fullName']}
+----
+Email: $this->email
+----
+
+ACCOUNT;
 	}
 }
 
