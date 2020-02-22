@@ -144,6 +144,14 @@ abstract class Content
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getField($fieldname): string
+	{
+		return isset($this->fields[$fieldname]) ? $this->fields[$fieldname] : '';
+	}
+
+	/**
 	 * Copy files associated with the WP post to $targetPath.
 	 *
 	 * @param string $filepath
