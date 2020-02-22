@@ -16,38 +16,43 @@ use WebMechanic\Converter\Meta;
 class Post extends Item
 {
 	/** @var int wp:post_parent */
-	protected $parent;
+	protected $parent = 0;
 
 	/** @var string dc:creator and username */
-	protected $creator;
+	protected $creator = '';
 
 	/** @var string content:encoded */
-	protected $content;
-	protected $content_html;
+	protected $content = '';
+	protected $content_html = '';
 	/** @var string excerpt:encoded */
-	protected $excerpt;
-	protected $excerpt_html;
+	protected $excerpt = '';
+	protected $excerpt_html = '';
 
 	/** @var string GMT date string wp:post_date_gmt */
-	protected $date;
+	protected $date = '';
 	/** @var string wp:post_name */
-	protected $name;
+	protected $name = '';
 
 	/** @var string */
-	public $filepath;
+	public $filepath = '';
 
 	/** @var string Post template for a potential Kirby Blueprint */
 	protected $template = 'default';
 
 	/** @var string wp:status publish|draft|inherit */
-	protected $status;
+	protected $status = 'publish';
 
 	/** @var array wp:postmeta > <wp:meta_key> <wp:meta_value>CDATA */
 	protected $meta;
+
 	/** @var array */
 	protected $tags;
+
 	/** @var array */
 	protected $categories;
+
+	/** @var array preg_replace node name prefixes to simplify setters */
+	protected $prefixFilter = '/^post_?/';
 
 	/** @var int bit mask for HTML parser hints */
 	protected $hints = 0;

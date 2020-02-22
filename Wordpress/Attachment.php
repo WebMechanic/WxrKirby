@@ -18,30 +18,31 @@ class Attachment extends Post
 	 * These URLs are not automatically displayed or exposed per se but may
 	 * appear in manually entered image or download links in the HTML.
 	 * Review and configure Rewrite rules is Kirby\Content as you see fit.
+	 *
 	 * @var string wp:attachment_url
 	 */
-	public $url;
-
-	/**
-	 * @var string _wp_attached_file
-	 */
-	protected $image;
+	public $url = '';
 
 	/** @var array preg_replace node name prefixes to simplify setters */
 	protected $prefixFilter = '/^(post|attachment)_?/';
 
 	/**
-	 * Attachments in WP reside in `wp-content/uploads/YYYY/MMM/`. This removes
-	 * the domain name. The relative upload path is also given in the
-	 * `_wp_attached_file` metadata element, @param DOMNode $elt
+	 * Attachments in WP reside in `/wp-content/uploads/YYYY/MMM/file.jpg`
+	 * and their URL stored in `<wp:attachment_url>`. This removes the domain
+	 * from that URL and stores the upload path.
+	 *
+	 * The relative upload path excluding `/wp-content/uploads/` is also
+	 * given in the `_wp_attached_file` metadata element.
+	 *
+	 * @param DOMNode $elt
 	 *
 	 * @return Attachment
-	 * @see _wp_attached_file().
+	 * @see setAttachedFile()
 	 */
 	public function setUrl(DOMNode $elt): Attachment
 	{
-		$url         = $this->cleanUrl($elt->textContent);
-		$this->image = str_replace($this->site()->url, '', $url);
+		$url       = $this->cleanUrl($elt->textContent);
+		$this->url = str_replace($this->site()->url, '', $url);
 		return $this;
 	}
 
@@ -58,7 +59,7 @@ class Attachment extends Post
 		if (isset($parts['query'])) {
 			parse_str($parts['query'], $query);
 			if (isset($query['attachment_id'])) {
-				$this->id = (int)$query['attachment_id'];
+				$this->id       = (int)$query['attachment_id'];
 				$this->filepath = $parts['path'] === '/' ? '' : $parts['path'];
 			}
 		} else {
@@ -70,7 +71,7 @@ class Attachment extends Post
 
 	/**
 	 * Usually the relative upload path of an attachment/uploaded file.
-	 * A full qualified URL is also given in
+	 * A full qualified URL is also given in `<wp:attachment_url>`.
 	 *
 	 * @param DOMNode $elt
 	 * @return Attachment
@@ -106,7 +107,7 @@ class Attachment extends Post
 	public function setAttachmentMetadata(DOMNode $elt): Attachment
 	{
 		// @todo split into sidecar file (Transform?), IPTC etc.
-		$this->meta['metadata']  = unserialize($elt->textContent);
+		$this->meta['metadata'] = unserialize($elt->textContent);
 		return $this;
 	}
 }

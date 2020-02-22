@@ -18,27 +18,23 @@ use WebMechanic\Converter\Kirby\Site;
 class Item
 {
 	/** @var int wp:post_id */
-	protected $id;
+	protected $id = 0;
 	/** @var string */
-	protected $title;
+	protected $title = '';
 	/** @var string */
-	protected $link;
+	protected $link = '';
 	/** @var string wp:post_type, redundant */
-	protected $type;
+	protected $type = '';
 	/** @var string */
-	protected $description;
+	protected $description = '';
 
 	/** @var array misc. text nodes */
 	protected $data = [];
 	/** @var array custom fields collected on the go */
 	protected $fields = [];
 
-	/** @var DOMNode current element */
-	protected $node;
 	/** @var WXR */
 	protected $XML;
-	/** @var Transform the current element's transform, if any */
-	protected $transform;
 
 	/** @var array preg_replace node name prefixes to simplify setters */
 	protected $prefixFilter = '/^_wp_?/';
@@ -108,18 +104,22 @@ class Item
 		/* only deal with this if there's some content.
 		 * Empty nodes or <![CDATA[]]> is not. */
 		if ($elt->firstChild) {
-			$this->transform = $this->transform($elt->nodeName);
+			$transform = $this->transform($elt->nodeName);
 
 			// element data setter
 			if (method_exists($this, $method)) {
 				$this->$method($elt);
-				$this->transform->apply($elt, $this);
+				$transform->apply($elt, $this);
 				return $this;
 			}
 
 			// vanilla assignment
-			$this->transform->apply($elt, $this);
-			$this->{$store}[$prop] = $elt->textContent;
+			$transform->apply($elt, $this);
+			if (isset($this->{$prop})) {
+				$this->{$prop} = $elt->textContent;
+			} else {
+				$this->{$store}[$prop] = $elt->textContent;
+			}
 		}
 
 		return $this;
@@ -244,4 +244,13 @@ class Item
 
 		return $this;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getField($fieldname): string
+	{
+		return isset($this->fields[$fieldname]) ? $this->fields[$fieldname] : '';
+	}
+
 }
