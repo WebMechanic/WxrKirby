@@ -167,20 +167,41 @@ abstract class Content
 
 	/**
 	 * Take the $link and $filepath of the ressource to create Apache Redirect
-	 * rules for some .htaccess. Uses the `permanent` redirect status (301) by
-	 * default to please search engines.
+	 * rules for some `.htaccess`. Uses a `permanent` redirect status (301) by
+	 * default to please and update conforming search engines.
 	 *
 	 * - permanent: Returns a permanent redirect status (301) indicating that the resource has moved permanently.
+	 *      Used by default for virtually all posts, pages and images to log their new URI.
 	 * - temp: Returns a temporary redirect status (302).
+	 *      Not used by default anywhere.
 	 * - seeother: Returns a "See Other" status (303) indicating that the resource has been replaced.
+	 *      If you once had a blog and replaced it with an "article archive" or alike.
+	 *      Needs manual intervention i.e. using a Transform.
 	 * - gone: Returns a "Gone" status (410) indicating that the resource has been permanently removed.
+	 *      For stuff you removed entirely. Needs manual intervention i.e. using a Transform.
+	 *
+	 * @param string $status one of the four status names or a valid status code number
+	 * @return string The "Rewrite code old-url new-uri" line for Apache
 	 */
-	protected function rewrite($status = 'permanent')
+	protected function rewriteApache($status = 'permanent')
 	{
-		$redir = $status ? 'RedirectPermanent' : 'Redirect seeother';
-		$uri   = $redir .' '. $this->sourceUrl .' '. $this->filepath;
+		static $states = [
+			'permanent'=>301,
+			'temp'=>302,
+			'seeother'=>303,
+			'gone'=>410,
+			];
 
-		echo $uri; // @fixme write to redirect.log file
+		$status = isset($states[$status]) ? $states[$status] : (int) $status;
+		if ($status < 300) $status = $states['permanent'];
 
+		$redirect = "Redirect $status " . $this->link;
+		if ($status >= 300 || $status < 400) {
+			$redirect .= ' '. $this->filepath;
+		}
+
+		echo $redirect; // @fixme write to redirect.log file
+
+		return $redirect;
 	}
 }
