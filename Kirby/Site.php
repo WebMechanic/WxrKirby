@@ -51,7 +51,14 @@ class Site extends Content
 
 		$this->title  = $channel->title;
 		$this->url    = $channel->link;
-		$this->fields = $channel->fields;
+		foreach ((array) $channel->fields as $key => $value) {
+			$method = 'set' . ucfirst("{$key}");
+			if (method_exists($this, $method)) {
+				$this->$method($key, $value);
+			} else {
+				$this->content[$key] = $value;
+			}
+		}
 
 		return $this;
 	}
@@ -66,12 +73,12 @@ Title: {$this->title}
 ---- 
 URL: {$this->url}
 ---- 
-Link: {$this->sourceUrl}
+Link: {$this->link}
 ----
 
 OUT;
 
-		foreach ($this->fields as $field => $data) {
+		foreach ($this->content as $field => $data) {
 			if (is_array($data)) {
 				$data = $data[0];
 			}
