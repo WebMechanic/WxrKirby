@@ -18,10 +18,11 @@ class File extends Content
 	 * Takes a Wordpress <item> of type "attachment" and reads properties
 	 * to copy files into the Kirby site.
 	 */
-	public function assign($item)
+	public function assign($item): File
 	{
 		$this->ext = Converter::getOption('extension', '.txt');
 		// TODO: Implement assign() method.
+		return $this;
 	}
 
 	/**

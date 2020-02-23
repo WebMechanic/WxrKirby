@@ -45,13 +45,15 @@ class Site extends Content
 	 * @param Channel $channel
 	 * @return mixed|void
 	 */
-	public function assign($channel)
+	public function assign($channel): Site
 	{
 		$this->ext = Converter::getOption('extension', '.txt');
 
 		$this->title  = $channel->title;
 		$this->url    = $channel->link;
 		$this->fields = $channel->fields;
+
+		return $this;
 	}
 
 	/**

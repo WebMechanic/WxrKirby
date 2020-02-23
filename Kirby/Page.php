@@ -30,7 +30,7 @@ use WebMechanic\Converter\Wordpress\Post;
 
 class Page extends Content
 {
-	protected $id = null;
+	protected $id = 0;
 
 	/** Kirby system fields */
 	protected $blueprint = 'default';
@@ -84,10 +84,11 @@ class Page extends Content
 	 * a Kirby Page file.
 	 *
 	 * @param Post $post
-	 * @todo Convert inline IMG in Post::content, excerpt, description
+	 * @return Page
 	 * @todo Convert inline LINK in Post::content, excerpt, description
+	 * @todo Convert inline IMG in Post::content, excerpt, description
 	 */
-	public function assign($post)
+	public function assign($post): Page
 	{
 		$this->ext = Converter::getOption('extension', '.txt');
 
@@ -145,6 +146,8 @@ class Page extends Content
 		}
 
 //		$props = ['content_html', 'excerpt_html'];
+
+		return $this;
 	}
 
 	/**
@@ -152,10 +155,11 @@ class Page extends Content
 	 */
 	public function writeOutput()
 	{
+		$felder = implode(',', array_keys($this->content));
 		//	$subtitle = $post->getField('Subtitle');
 		echo <<<LOG
-Page: {$this->id} $this->link
-      {$this->title}
+Page: {$this->id} {$this->link} | {$this->filename}
+      {$felder}
 
 LOG;
 	}
