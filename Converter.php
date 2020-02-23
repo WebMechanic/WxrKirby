@@ -41,29 +41,29 @@ class Converter
 	/** @var WXR $WXR access to WXR date */
 	protected $WXR = null;
 
-	/** @var Site $site the Kirby\Site `site.txt` with possible useful Wordpress settings */
+	/** @var Converter */
+	public static $converter;
+
+	/** @var Site $site the Kirby\Site `site.txt` with possible useful WordPress settings */
 	protected $site = null;
 
 	/** @var array  list of WebMechanic\Kirby\Pages from Wordpress\Post's */
 	protected $pages = [];
 
-	/** @var array  list of WebMechanic\Kirby\Author from Wordpress usernames */
+	/** @var array  list of WebMechanic\Kirby\Author from Wordpress users/creators */
 	protected $authors = [];
 
-	/** @var array  list of WebMechanic\Kirby\Files (assets) / Wordpress\Attachment's */
+	/** @var array  list of WebMechanic\Kirby\Files (assets) from Wordpress\Attachment's */
 	protected $files = [];
 
 	/** @var array optional Transform objects */
 	protected $transforms = null;
 
 	/** @var App optional instance of a Kirby App from an active installation to gather some useful information */
-	static $kirby = null;
+	public static $kirby = null;
 
-	/** @var HtmlConverter */
-	static $HTML;
-
-	/** @var Converter */
-	public static $converter;
+	/** @var HtmlConverter optional instance of `League\HTMLToMarkdown` form HTML to Markdown conversion */
+	public static $HTML;
 
 	/**
 	 * Arbitrary plugin stuff or WP internals we don't care about.
@@ -92,13 +92,22 @@ class Converter
 	protected static $options = [
 		'title' => 'Title',
 		'text' => 'Text',
+
+		// that's where the output goes unless a Kirby App says otherwise
 		'paths' => [
 			'kirby' => __DIR__ . '/kirby/',
 			'content' => null,
 			'site' => null,
 		],
+
+		// elements ignored but "sub-classable"
 		'delegate' => ['nav_menu_item' => null],
+
+		// discarded plugin data
 		'discard' => ['wooframework', 'ngg_pictures', 'ngg_gallery', 'gal_display_source', 'slide', 'lightbox_library'],
+
+		// League\HTMLToMarkdown config options
+		'html' => ['hard_break' => false],
 	];
 
 	protected $debug = false;
@@ -128,9 +137,15 @@ class Converter
 	 * @param string $key
 	 * @return mixed|null
 	 */
-	public function getOption(string $key)
+	public function getOption(string $key, $default = null)
 	{
-		return static::$options[$key] = static::$options[$key] ?? null;
+		if ($key === null) {
+			return static::$options;
+		}
+		if (!isset(static::$options[$key])) {
+			static::$options[$key] = $default;
+		}
+		return static::$options[$key];
 	}
 
 	public function __destruct()

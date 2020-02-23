@@ -24,6 +24,7 @@ class Post extends Item
 	/** @var string content:encoded */
 	protected $content = '';
 	protected $content_html = '';
+
 	/** @var string excerpt:encoded */
 	protected $excerpt = '';
 	protected $excerpt_html = '';
@@ -71,12 +72,7 @@ class Post extends Item
 	public function setId(DOMNode $elt): Post
 	{
 		$this->id = (int)$elt->textContent;
-		// @todo HTML Markup Filter Sample Post "Stylsheet" [sic]
-		// <wp:post_id>337</wp:post_id>
-		if ($this->id == 337) {
-			$this->hints = self::PARSE_HTML;
-			$this->htmlConvert();
-		}
+
 		return $this;
 	}
 
@@ -84,22 +80,24 @@ class Post extends Item
 	 * Convert the HTML in `content_html` and `excerpt_html` into Markdown
 	 * and store the result in `content` and `excerpt` respectively.
 	 *
-	 * @param string $what
-	 * @return $this
+	 * To check if a conversion is "recommended" call `hintHtml()` and test `$hints`.
+	 *
+	 * The default option for the HtmlConverter is `hard_break=false`. You can
+	 * configure it with Converter::$options['html'].
+	 *
+	 * @param string $html
+	 * @return string  presumably Markdown
+	 * @see hintHtml(), $hints, Converter::$options
 	 */
-	protected function htmlConvert($what = 'content')
+	protected function htmlConvert($html): string
 	{
-		if (!$this->hints) return $this;
-
 		$HTML = $this->converter()->getHtml();
 
 		// <br>, two spaces at the line end in output Markdown
-		$HTML->getConfig()->setOption('hard_break', false);
+		$options = $this->converter()->getOption('html', ['hard_break' => false]);
+		$HTML->getConfig()->merge($options);
 
-		if ($what == 'content' && ($this->content)) $this->content = $HTML->convert($this->content_html);
-		if ($what == 'excerpt' && ($this->excerpt)) $this->excerpt = $HTML->convert($this->excerpt_html);
-
-		return $this;
+		return $HTML->convert($this->content_html);
 	}
 
 	/**
@@ -111,17 +109,19 @@ class Post extends Item
 	 * This fails if somebody believes adding spaces around an equal sign is
 	 * useful. In such cases: subclass and use regular expressions.
 	 *
-	 * @param string $prop
+	 * @param string $html
 	 * @return Post
 	 */
-	protected function hintHtml(string $prop): Post
+	protected function hintHtml(string $html): Post
 	{
-		if (preg_match('/<[a-z]+\s?/', $prop)) {
+		if (preg_match('/<[a-z]+\s?/', $html)) {
 			$this->hints = self::PARSE_HTML;
-			if (strpos($prop, 'href=')) $this->hints |= self::PARSE_LINK;
-			if (strpos($prop, '<img')) $this->hints |= self::PARSE_IMG;
-			if (strpos($prop, 'srcset=')) $this->hints |= self::PARSE_IMG;
-		} else { $this->hints = 0; }
+			if (strpos($html, 'href=')) $this->hints |= self::PARSE_LINK;
+			if (strpos($html, '<img')) $this->hints |= self::PARSE_IMG;
+			if (strpos($html, 'srcset=')) $this->hints |= self::PARSE_IMG;
+		} else {
+			$this->hints = 0;
+		}
 		return $this;
 	}
 
@@ -132,9 +132,12 @@ class Post extends Item
 	 */
 	public function setContent(DOMNode $elt): Post
 	{
-		$this->content_html = $elt->textContent;
-		$this->hintHtml($this->content_html);
-		$this->htmlConvert('content');
+		if (!empty($elt->textContent)) {
+			$this->content_html = $elt->textContent;
+			if ($this->hintHtml($this->content_html)->hints) {
+				$this->htmlConvert('content');
+			}
+		}
 		return $this;
 	}
 
@@ -153,9 +156,12 @@ class Post extends Item
 	 */
 	public function setExcerpt(DOMNode $elt): Post
 	{
-		$this->excerpt_html = $elt->textContent;
-		$this->hintHtml($this->excerpt_html);
-		$this->htmlConvert('excerpt');
+		if (!empty($elt->textContent)) {
+			$this->excerpt_html = $elt->textContent;
+			if ($this->hintHtml($this->excerpt_html)->hints) {
+				$this->htmlConvert('excerpt');
+			}
+		}
 		return $this;
 	}
 
@@ -199,6 +205,10 @@ class Post extends Item
 	}
 
 	/**
+	 * The `<wp:post_name>` is essentially identical with the lowercase version
+	 * of the <link>` URL last part.
+	 * For Attachments it is also the suffix-free basename of its filename.
+	 *
 	 * @param DOMNode $elt
 	 *
 	 * @return Post
