@@ -9,7 +9,9 @@
 
 namespace WebMechanic\Converter\Wordpress;
 
+use DOMElement;
 use DOMNode;
+use WebMechanic\Converter\Converter;
 
 class Channel extends Item
 {
@@ -30,24 +32,30 @@ class Channel extends Item
 	 * Only deals with its simple elements.
 	 * Author <wp:author> and Item <item> are handled separately in WXR.
 	 *
-	 * @param DOMNode $node
+	 * @param DOMNode $channel
 	 * @return Channel
 	 */
-	public function parse(DOMNode $node): Channel
+	public function parse(DOMNode $channel): Channel
 	{
-		$node->normalize();
+		$channel->normalize();
 
-		foreach ($node->childNodes as $elt) {
+		/** @var DOMElement $elt */
+		foreach ($channel->childNodes as $elt) {
 			if ($elt->nodeType !== XML_ELEMENT_NODE) continue;
 
 			switch ($elt->localName) {
 			case 'pubDate';
 			case 'wxr_version';
-			case 'image':
-				/* skip these */
+				/* ignored */
+			case 'author';
+				/* @see Converter::setAuthor() */
 				break;
 
-			case 'author':
+			case 'image':
+				/* pick <image><url> */
+				$this->data['favicon'] = $elt->firstChild->textContent;
+				break;
+
 			case 'item':
 				/* we leave and let WXR::parse <item> and <wp:author> */
 				return $this;
