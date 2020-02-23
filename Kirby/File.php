@@ -17,6 +17,9 @@ class File extends Content
 	/**
 	 * Takes a Wordpress <item> of type "attachment" and reads properties
 	 * to copy files into the Kirby site.
+	 *
+	 * @param mixed $item some Item
+	 * @return File
 	 */
 	public function assign($item): File
 	{
@@ -30,6 +33,6 @@ class File extends Content
 	 */
 	public function writeOutput()
 	{
-		echo 'File::writeOutput() ', $this->user['fullName'], PHP_EOL;
+		echo 'File::writeOutput() ', $this->filepath, PHP_EOL;
 	}
 }
