@@ -71,41 +71,6 @@ class Meta extends Transform
 		}
 	}
 
-	/**
-	 * Returns the page template used for a Post ('default').
-	 * This can be used as a blueprint filename in Kirby and the output file
-	 * will be named accordingly.
-	 *
-	 * @return string
-	 * @todo use config to honor Wordpress templates
-	 */
-	private function pageTemplate()
-	{
-		return 'default';
-	}
-
-	/**
-	 * If false provides a rel="nofollow" for the page/link.
-	 *
-	 * @return bool
-	 * @see seoNoindex()
-	 */
-	private function seoFollow()
-	{
-		return false;
-	}
-
-	/**
-	 * If false provides a rel="noindex" for the page/link.
-	 *
-	 * @return bool
-	 * @see seoFollow()
-	 */
-	private function seoNoindex()
-	{
-		return false;
-	}
-
 	public function addHandler($key, \Closure $handler)
 	{
 		$this->handler[$key] = $handler;

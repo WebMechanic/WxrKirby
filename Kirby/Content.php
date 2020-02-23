@@ -35,10 +35,7 @@ abstract class Content
 	/** @var array */
 	protected $content = [];
 
-	/** @var array */
-	protected $fields = [];
-
-	/** @var array preg_replace to normalise element name prefixes */
+	/** @var array preg_replace to normalize element name prefixes */
 	protected $prefixFilter = '//';
 
 	/**
@@ -101,7 +98,6 @@ abstract class Content
 		return (isset($this->{$name})) ? $this->{$name} : null;
 	}
 
-
 	/**
 	 * Sets the filename of the (currently) active migration content.
 	 * Varies as per settings in the Site, Page, File, Author classes.
@@ -117,11 +113,9 @@ abstract class Content
 		return $this;
 	}
 
-
 	/**
 	 * Sets the filepath, usually within `content/` of the (currently) active
 	 * migration content. Applies to Page and File (Image) migrations.
-	 * Varies as per settings in the Page and File classes.
 	 *
 	 * @param string $filepath
 	 *
@@ -148,23 +142,9 @@ abstract class Content
 	/**
 	 * @return string
 	 */
-	public function getField($fieldname): string
+	public function getContent(string $fieldname): string
 	{
-		return isset($this->fields[$fieldname]) ? $this->fields[$fieldname] : '';
-	}
-
-	/**
-	 * Copy files associated with the WP post to $targetPath.
-	 *
-	 * @param string $filepath
-	 *
-	 * @return Content
-	 * @todo implement copy {$filepath} somewhere
-	 */
-	protected function copyFile(string $filepath): Content
-	{
-		echo __METHOD__ . " -- copy {$filepath} somewhere", PHP_EOL;
-		return $this;
+		return isset($this->content[$fieldname]) ? $this->content[$fieldname] : '';
 	}
 
 	abstract public function writeOutput();

@@ -28,16 +28,6 @@ class WXR
 	/** @var Converter */
 	private $converter;
 
-	/** @var array List of XML namespaces found in the RSS root element of the WXR export.
-	 * private $namespaces = [
-	 * "excerpt"=>"http://wordpress.org/export/1.2/excerpt/",
-	 * "content"=>"http://purl.org/rss/1.0/modules/content/",
-	 * "wfw"=>"http://wellformedweb.org/CommentAPI/",
-	 * "dc"=>"http://purl.org/dc/elements/1.1/",
-	 * "wp"=>"http://wordpress.org/export/1.2/"
-	 * ];
-	 */
-
 	/**
 	 * Creates a DOMDocument from the $xmlPath.
 	 * To do the parsing and start the conversion once custom options are set
@@ -108,6 +98,9 @@ class WXR
 	 */
 	protected function parseItem(DOMElement $item): WXR
 	{
+		static $discard = null;
+		if ($discard === null) $discard = Converter::getOption('discard');
+
 		$elms = $item->getElementsByTagName('post_type');
 
 		if ($elms->length) {
@@ -128,18 +121,14 @@ class WXR
 				// Due to its complexity, this should be handled in a separate class,
 				// rebuilding the node tree based on the `wp:postmeta` information.
 				break;
-			case 'display_type':
-			case 'gal_display_source':
-			case 'ngg_pictures':
-			case 'ngg_gallery':
-			case 'lightbox_library':
-			case 'wooframework':
-			case 'slide':
-				break;
 
 			default:
-				// @todo throw UnexpectedValueException?
-				echo "** WXR::parseItem UNKNOWN type '{$node->textContent}' **", PHP_EOL;
+				if (in_array($node->textContent, $discard)) {
+					break;
+				} else {
+					// @todo throw UnexpectedValueException?
+					echo "** WXR::parseItem UNKNOWN type '{$node->textContent}' **", PHP_EOL;
+				}
 				break;
 			}
 		}

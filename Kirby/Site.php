@@ -40,8 +40,7 @@ class Site extends Content
 	public function assign($channel)
 	{
 		$this->title  = $channel->title;
-		$this->url    = $channel->url;
-		$this->link   = $channel->link;
+		$this->url    = $channel->link;
 		$this->fields = $channel->fields;
 	}
 

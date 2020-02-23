@@ -19,12 +19,6 @@ class Channel extends Item
 	 * @see $link
 	 * @var string incl. protocol
 	 */
-	protected $url;
-
-	/**
-	 * @see $link
-	 * @var string incl. protocol
-	 */
 	protected $blogUrl;
 
 	/**
@@ -44,13 +38,6 @@ class Channel extends Item
 			if ($elt->nodeType !== XML_ELEMENT_NODE) continue;
 
 			switch ($elt->localName) {
-			case 'pubDate';
-			case 'wxr_version';
-				/* ignored */
-			case 'author';
-				/* @see Converter::setAuthor() */
-				break;
-
 			case 'image':
 				/* pick <image><url> */
 				$this->data['favicon'] = $elt->firstChild->textContent;
@@ -66,7 +53,6 @@ class Channel extends Item
 			case 'description':
 			case 'language':
 			case 'link':
-			case 'base_site_url':
 			case 'base_blog_url':
 				/* @see setBaseSiteUrl(), setBaseBlogUrl() */
 			case 'generator':
@@ -75,25 +61,6 @@ class Channel extends Item
 			}
 		}
 
-		return $this;
-	}
-
-	/**
-	 * Sets the site's URL using <wp:base_site_url> and applies the same URL
-	 * transformation as Item::setLink().
-	 * This element usually follows <channel><link> in a standard WXR export.
-	 *
-	 * @param DOMNode $url
-	 *
-	 * @return Channel
-	 * @see  setBaseBlogUrl()
-	 * @uses Item::setLink()
-	 */
-	public function setBaseSiteUrl(DOMNode $url): Channel
-	{
-		// the "original" <channel><link> is already done, but
-		// this will use <wp:base_site_url> for the transform
-		$this->url = $this->cleanUrl($url->textContent);
 		return $this;
 	}
 

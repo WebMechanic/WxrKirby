@@ -37,11 +37,6 @@ class Page extends Content
 	protected $filename = 'default.txt';
 
 	/**
-	 * @var array A collection of Kirby_File based on post_type:attachment
-	 */
-	protected $files = [];
-
-	/**
 	 * @var array A collection of Wordpress_Meta to do smart things with.
 	 */
 	protected $meta = [];
@@ -61,43 +56,12 @@ class Page extends Content
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getFiles(): array
-	{
-		return $this->files;
-	}
-
-	/**
-	 * @param File $file
-	 *
-	 * @return Page
-	 */
-	public function setFile(File $file): Page
-	{
-		$hash = crc32($file->filepath . $file->filename);
-		$this->files[$hash] = $file;
-		return $this;
-	}
-
-	/**
 	 * @param string $folder
 	 * @return string
 	 */
 	public function getContentPath($folder = 'content'): string
 	{
 		return parent::getContentPath($folder);
-	}
-
-	/**
-	 * Transformiert die Meta-Informationen aus Wordpress is etwas das Kirby
-	 * versteht und gebrauchen kann.
-	 *
-	 * @return array
-	 */
-	public function getMeta(): array
-	{
-		return $this->meta;
 	}
 
 	/**
