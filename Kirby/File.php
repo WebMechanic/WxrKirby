@@ -21,7 +21,9 @@ class File extends Content
 		// TODO: Implement assign() method.
 	}
 
-	/** @todo Implement writeOutput() method. */
+	/**
+	 * @todo use Kirby\Cms\File::create() and Kirby\Toolkit\F
+	 */
 	public function writeOutput()
 	{
 		echo 'File::writeOutput() ', $this->user['fullName'], PHP_EOL;

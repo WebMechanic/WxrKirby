@@ -135,9 +135,10 @@ class Converter
 
 	/**
 	 * @param string $key
+	 * @param null   $default
 	 * @return mixed|null
 	 */
-	public function getOption(string $key, $default = null)
+	public static function getOption(string $key, $default = null)
 	{
 		if ($key === null) {
 			return static::$options;
@@ -171,7 +172,7 @@ class Converter
 	public function getHtml(): HtmlConverter
 	{
 		// <br>, two spaces at the line end in output Markdown
-		$options = $this->getOption('html2md', ['hard_break' => false]);
+		$options =  static::getOption('html2md', ['hard_break' => false]);
 
 		return static::$HTML = static::$HTML ?? new HtmlConverter($options);
 	}
@@ -228,6 +229,7 @@ class Converter
 	public function setSite(Channel $site): Converter
 	{
 		$this->site = new Site();
+		$this->site->set('ext',  static::getOption('extension', 'txt'));
 		$this->site->assign($site);
 
 		return $this;

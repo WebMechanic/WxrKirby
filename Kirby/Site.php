@@ -100,13 +100,12 @@ OUT;
 	}
 
 	/**
+	 * @param string $folder
 	 * @return string
 	 */
-	public function getContentPath(): string
+	public function getContentPath($folder = 'site'): string
 	{
-		$paths = Converter::$converter->getOption('paths');
-		$this->contentPath = $paths['site'];
-		return $this->contentPath;
+		return parent::getContentPath($folder);
 	}
 
 	/**

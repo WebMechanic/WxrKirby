@@ -27,8 +27,10 @@ use WebMechanic\Converter\Wordpress\Item;
 
 class Author extends Content
 {
-	/** @var string this could go into a "user.txt" for a valid Kirby account
-	  * @see setLogin() */
+	/**
+	 * @see setLogin()
+	 * @var string this could go into a "user.txt" for a valid Kirby account
+	 */
 	protected $filename = '{username}.txt';
 
 	/** @var int Author ID from Wordpress */
@@ -41,7 +43,7 @@ class Author extends Content
 	protected $email;
 
 	/** @var array  Account data (user.txt) */
-	protected $user = ['firstName'=>null, 'lastName'=>null, 'fullName'=>null];
+	protected $user = ['firstName' => null, 'lastName' => null, 'fullName' => null];
 
 	/** @var array normalise all author_xx element names */
 	protected $prefixFilter = '/^author_?/';
@@ -109,8 +111,8 @@ class Author extends Content
 
 	/**
 	 * @param string $firstName
-	 * @uses setFullName()
 	 * @return Author
+	 * @uses setFullName()
 	 */
 	public function setFirstName(string $firstName): Author
 	{
@@ -121,8 +123,8 @@ class Author extends Content
 
 	/**
 	 * @param string $lastName
-	 * @uses setFullName()
 	 * @return Author
+	 * @uses setFullName()
 	 */
 	public function setLastName(string $lastName): Author
 	{
@@ -133,6 +135,7 @@ class Author extends Content
 
 	/**
 	 * Concatenate $user['fullName'] from 'firstName' + 'lastName'.
+	 *
 	 * @see setFirstName(), setLastName()
 	 */
 	public function setFullName(): void
@@ -142,10 +145,12 @@ class Author extends Content
 
 	/**
 	 * stub to satisfy Content interface.
+	 *
 	 * @param Item $author
 	 * @return Author
 	 */
-	public function assign($author) {
+	public function assign($author)
+	{
 		return $this;
 	}
 
@@ -165,6 +170,19 @@ Email: $this->email
 ----
 
 ACCOUNT;
+	}
+
+	/**
+	 * Creates a JSON representation of this Author for use with Kirby's
+	 * users()->create() and users()->update() as illustrated in the
+	 * "Migrate Users" Cookbook.
+	 *
+	 * @link https://getkirby.com/docs/cookbook/setup/migrate-users
+	 * @todo implement JSON output
+	 */
+	public function toJson(): Author
+	{
+		return $this;
 	}
 }
 

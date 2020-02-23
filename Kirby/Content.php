@@ -21,7 +21,7 @@ abstract class Content
 	protected $contentPath = '';
 	protected $filepath = '';
 	protected $filename = '';
-	protected $ext = '.txt';
+	protected $ext = 'txt';
 
 	/** @var string original WP URL of the item */
 	protected $url = '';
@@ -134,12 +134,14 @@ abstract class Content
 	}
 
 	/**
+	 * @param string $folder on of kirby, content, site, assets
 	 * @return string
+	 * @see Converter::$options
 	 */
-	public function getContentPath(): string
+	public function getContentPath($folder = 'content'): string
 	{
-		$paths = Converter::$converter->getOption('paths');
-		$this->contentPath = $paths['content'];
+		$paths = Converter::getOption('paths');
+		$this->contentPath = $paths[$folder];
 		return $this->contentPath;
 	}
 

@@ -4,17 +4,17 @@
  * Creates `default.txt` or as given by $blueprint property.
  *
  * item > title           : title
- * item > link            : url            - [M] used to build redirect rules
- * item > post_id         : id
+ * item > link            : url           - [M] used to build redirect rules
+ * item > post_id         : id            - not used
  * item > post_parent     : parent        - used for folder hierarchy
  * item > status          : status        - publish|draft|inherit
  * item > creator         : author        - Login Name [M] opt. combine fields from `author` file
- * item > description     : intro        - article introduction
- * item > content:encoded : text            - article full text
- * item > excerpt:encoded : abstract        - article abstract
- * item > post_date_gmt   : created        - GMT timestamp
- * item > post_password   : [ignored in 0.1.0]
- * item > is_sticky       : [ignored in 0.1.0]
+ * item > description     : intro         - article introduction
+ * item > content:encoded : text          - article full text
+ * item > excerpt:encoded : abstract      - article abstract
+ * item > post_date_gmt   : created       - GMT timestamp
+ * item > post_password   : [ignored]
+ * item > is_sticky       : [ignored]
  * item > category        : category
  * item > postmeta        : delegate to custom `Transform_Meta` instance
  *
@@ -56,7 +56,7 @@ class Page extends Content
 	public function setBlueprint(string $blueprint): Page
 	{
 		$this->blueprint = $blueprint;
-		$this->filename = $blueprint . '.txt';
+		$this->filename = $blueprint . $this->site()->ext;
 		return $this;
 	}
 
@@ -81,13 +81,12 @@ class Page extends Content
 	}
 
 	/**
+	 * @param string $folder
 	 * @return string
 	 */
-	public function getContentPath(): string
+	public function getContentPath($folder = 'content'): string
 	{
-		$paths = Converter::$converter->getOption('paths');
-		$this->contentPath = $paths['content'];
-		return $this->contentPath;
+		return parent::getContentPath($folder);
 	}
 
 	/**
@@ -127,6 +126,9 @@ class Page extends Content
 		// TODO: Implement assign() method.
 	}
 
+	/**
+	 * @todo use Kirby\Cms\File::create() and Kirby\Toolkit\F
+	 */
 	public function writeOutput()
 	{
 		// TODO: Implement writeOutput() method.
