@@ -26,6 +26,7 @@ use Kirby\Cms\App;
 
 use League\HTMLToMarkdown\HtmlConverter as HtmlConverter;
 use WebMechanic\Converter\Kirby\Author;
+use WebMechanic\Converter\Kirby\Page;
 use WebMechanic\Converter\Kirby\Site;
 use WebMechanic\Converter\Wordpress\Attachment;
 use WebMechanic\Converter\Wordpress\Channel;
@@ -70,16 +71,18 @@ class Converter
 	 *
 	 * title: Kirby Field used to store the Post title
 	 * text: Kirby Field used to store the Post content
-	 * kirby_root: root folder of Kirby installation (contains 'content' and #site ' folders)
-	 * content_dir: alternative path for content output files
-	 * site_dir: alternative path for blueprint and account output files
+	 * paths: an array with folders to use for output
+	 *  - kirby: root folder (contains 'content' and 'site ' folders)
+	 *  - content: alternative path for content output files
+	 *  - assets: alternative path for images (WP uploads)
+	 *  - site: alternative path for blueprint and account output files
 	 *
 	 * DELEGATE: XML Element names handled by specific classes.
 	 * 'nav_menu_item': The WP Mainmenu.
-	 * 		Only useful to recreate the same structure in Kirby.
-	 * 		Due to its complexity, this should be handled in a separate class,
-	 * 		i.e. Wordpress\Menu (not provided), rebuilding the node tree based
-	 * 		on the `wp:postmeta` information in all <item>s.
+	 *        Only useful to recreate the same structure in Kirby.
+	 *        Due to its complexity, this should be handled in a separate class,
+	 *        i.e. Wordpress\Menu (not provided), rebuilding the node tree based
+	 *        on the `wp:postmeta` information in all <item>s.
 	 *
 	 * DISCARD: XML Element names ignored during conversion.
 	 * 'display_type': unknown
@@ -93,10 +96,12 @@ class Converter
 		'title' => 'Title',
 		'text' => 'Text',
 
-		// that's where the output goes unless a Kirby App says otherwise
+		// that's where the output goes. Kirby App config may override
 		'paths' => [
-			'kirby' => __DIR__ . '/kirby/',
+			'create' => false,
+			'kirby' => __DIR__ . '/migration/',
 			'content' => null,
+			'assets' => null,
 			'site' => null,
 		],
 
@@ -120,16 +125,53 @@ class Converter
 	 */
 	protected function __construct(string $xml_path)
 	{
-		$this->WXR = new WXR($xml_path);
+		$this->WXR       = new WXR($xml_path);
 		self::$converter = $this;
 
-		/* build paths */
-		if (empty($options['paths']['content'])) {
-			static::$options['paths']['content'] = static::$options['paths']['kirby'] . 'content';
+		$this->checkFolders();
+	}
+
+	/**
+	 * Check and build output paths.
+	 * Will use $options['paths']['kirby'] as the root for 'content', 'assets',
+	 * and 'site'. Individual paths for each will be used if they exist.
+	 */
+	private function checkFolders()
+	{
+		settype(static::$options['paths'], 'array');
+		if (is_dir(static::$options['paths']['kirby'])) {
+			/* will also throw on Windows where "Kirby" and "kirby" are treated the same */
+			if (is_file(static::$options['paths']['kirby'] .'/Content.php')) {
+				throw new \InvalidArgumentException(
+					'Cannot use program folder '. static::$options['paths']['kirby'] .' as output directory for Kirby files.');
+			}
+			if (!is_writable(static::$options['paths']['kirby'])) {
+				throw new \RuntimeException(
+					'Folder '. static::$options['paths']['kirby'] .' is not writeable.');
+			}
+		} else {
+			if (true === static::$options['paths']['create']) {
+				mkdir(static::$options['paths']['kirby'], 0750, true);
+			} else {
+				throw new \InvalidArgumentException(
+					'Please provide a valid, existing and writeable Kirby output directory: ' .
+					PHP_EOL . static::$options['paths']['kirby'] . ' is not.'
+				);
+			}
 		}
 
-		if (empty($options['paths']['site'])) {
-			static::$options['paths']['site'] = static::$options['paths']['kirby'] . 'site';
+		foreach (['content', 'assets', 'site', 'site/accounts', 'site/blueprints', 'site/templates'] as $folder) {
+			if ( empty(static::$options['paths'][$folder]) || !is_dir(static::$options['paths'][$folder]) )
+			{
+				static::$options['paths'][$folder] = static::$options['paths']['kirby'] . '/' . $folder;
+			}
+
+			if ( true === static::$options['paths']['create'] && !is_dir(static::$options['paths'][$folder]) )
+			{
+				mkdir(static::$options['paths'][$folder], 0750, true);
+			}
+
+			static::$options['paths'][$folder] = realpath(static::$options['paths'][$folder]);
 		}
 	}
 
@@ -254,7 +296,7 @@ class Converter
 	 */
 	public function setPage(Post $post): Converter
 	{
-		$this->pages[$post->id] = $post;
+		$this->pages[$post->id] = (new Page())->assign($post);
 		return $this;
 	}
 
