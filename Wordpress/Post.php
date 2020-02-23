@@ -83,21 +83,15 @@ class Post extends Item
 	 * To check if a conversion is "recommended" call `hintHtml()` and test `$hints`.
 	 *
 	 * The default option for the HtmlConverter is `hard_break=false`. You can
-	 * configure it with Converter::$options['html'].
+	 * configure it with Converter::$options['html2md'].
 	 *
-	 * @param string $html
+	 * @param string $markup
 	 * @return string  presumably Markdown
 	 * @see hintHtml(), $hints, Converter::$options
 	 */
-	protected function htmlConvert($html): string
+	public function htmlConvert(string $markup): string
 	{
-		$HTML = $this->converter()->getHtml();
-
-		// <br>, two spaces at the line end in output Markdown
-		$options = $this->converter()->getOption('html', ['hard_break' => false]);
-		$HTML->getConfig()->merge($options);
-
-		return $HTML->convert($this->content_html);
+		return $this->converter()->getHtml()->convert($markup);
 	}
 
 	/**
@@ -112,7 +106,7 @@ class Post extends Item
 	 * @param string $html
 	 * @return Post
 	 */
-	protected function hintHtml(string $html): Post
+	public function hintHtml(string $html): Post
 	{
 		if (preg_match('/<[a-z]+\s?/', $html)) {
 			$this->hints = self::PARSE_HTML;
@@ -135,7 +129,9 @@ class Post extends Item
 		if (!empty($elt->textContent)) {
 			$this->content_html = $elt->textContent;
 			if ($this->hintHtml($this->content_html)->hints) {
-				$this->htmlConvert('content');
+				$this->content = $this->htmlConvert($this->content_html);
+			} else {
+				$this->content = $this->content_html;
 			}
 		}
 		return $this;
@@ -159,7 +155,9 @@ class Post extends Item
 		if (!empty($elt->textContent)) {
 			$this->excerpt_html = $elt->textContent;
 			if ($this->hintHtml($this->excerpt_html)->hints) {
-				$this->htmlConvert('excerpt');
+				$this->excerpt = $this->htmlConvert($this->excerpt_html);
+			} else {
+				$this->excerpt = $this->excerpt_html;
 			}
 		}
 		return $this;
@@ -171,21 +169,6 @@ class Post extends Item
 			return $this->excerpt_html;
 		}
 		return $this->excerpt;
-	}
-
-	/**
-	 * Directly set the $content or $excerpt properties with some $markdown.
-	 *
-	 * @param string $markdown
-	 * @param string $prop      'content|excerpt'
-	 * @return Post
-	 */
-	public function setMarkdown(string $markdown, $prop = 'content'): Post
-	{
-		if ($prop == 'content') $this->content = $markdown;
-		if ($prop == 'excerpt') $this->excerpt = $markdown;
-
-		return $this;
 	}
 
 	/**
@@ -227,7 +210,6 @@ class Post extends Item
 	{
 		parent::setLink($link);
 		$this->setFilepath($this->link);
-
 		return $this;
 	}
 

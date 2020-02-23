@@ -59,13 +59,13 @@ class Item
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param DOMNode $item
 	 * @return Item
 	 */
-	function parse(DOMNode $node)
+	function parse(DOMNode $item)
 	{
-		$node->normalize();
-		foreach ($node->childNodes as $elt) {
+		$item->normalize();
+		foreach ($item->childNodes as $elt) {
 			if (XML_ELEMENT_NODE == $elt->nodeType) {
 				$this->set($elt);
 			}
@@ -107,16 +107,15 @@ class Item
 		 * Empty nodes or <![CDATA[]]> is not. */
 		if ($elt->firstChild) {
 			$transform = $this->transform($elt->nodeName);
+			$transform->apply($elt, $this);
 
 			// element data setter
 			if (method_exists($this, $method)) {
 				$this->$method($elt);
-				$transform->apply($elt, $this);
 				return $this;
 			}
 
 			// vanilla assignment
-			$transform->apply($elt, $this);
 			if (isset($this->{$prop})) {
 				$this->{$prop} = $elt->textContent;
 			} else {
@@ -235,8 +234,7 @@ class Item
 	/**
 	 * @param string $fieldname
 	 * @param string $value
-	 * @return string
-	 * @todo collect all fields and replace with Kirby's native Content class to render the target file?
+	 * @return Item
 	 */
 	public function addField(string $fieldname, string $value): Item
 	{

@@ -107,7 +107,7 @@ class Converter
 		'discard' => ['wooframework', 'ngg_pictures', 'ngg_gallery', 'gal_display_source', 'slide', 'lightbox_library'],
 
 		// League\HTMLToMarkdown config options
-		'html' => ['hard_break' => false],
+		'html2md' => ['hard_break' => false],
 	];
 
 	protected $debug = false;
@@ -170,7 +170,10 @@ class Converter
 
 	public function getHtml(): HtmlConverter
 	{
-		return static::$HTML = static::$HTML ?? new HtmlConverter();
+		// <br>, two spaces at the line end in output Markdown
+		$options = $this->getOption('html2md', ['hard_break' => false]);
+
+		return static::$HTML = static::$HTML ?? new HtmlConverter($options);
 	}
 
 	/**
