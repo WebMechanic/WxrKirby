@@ -34,7 +34,7 @@ class Post extends Item
 	protected $name = '';
 
 	/** @var string */
-	public $filepath = '';
+	protected $filepath = '';
 
 	/** @var string Post template for a potential Kirby Blueprint */
 	protected $template = 'default';
@@ -52,7 +52,7 @@ class Post extends Item
 	protected $categories;
 
 	/** @var array preg_replace node name prefixes to simplify setters */
-	protected $prefixFilter = '/^post_?/';
+	protected $prefixFilter = '/^(post|page)_?/';
 
 	/** @var int bit mask for HTML parser hints */
 	protected $hints = 0;
@@ -87,7 +87,7 @@ class Post extends Item
 	 * @param string $what
 	 * @return $this
 	 */
-	private function htmlConvert($what = 'content')
+	protected function htmlConvert($what = 'content')
 	{
 		if (!$this->hints) return $this;
 
@@ -114,7 +114,7 @@ class Post extends Item
 	 * @param string $prop
 	 * @return Post
 	 */
-	private function hintHtml(string $prop): Post
+	protected function hintHtml(string $prop): Post
 	{
 		if (preg_match('/<[a-z]+\s?/', $prop)) {
 			$this->hints = self::PARSE_HTML;
@@ -239,13 +239,16 @@ class Post extends Item
 
 	/**
 	 * Called on `<wp:postmeta>` and it's childNodes <wp:meta_key>, <wp:meta_value>
-	 * Keys:
+	 * This will NOT handle plugin fields. Create a Meta transform to catch them.
+	 *
+	 * Known Keys:
 	 * - _edit_last         edit history count?
+	 * - _wp_xyz            misc. WordPress internals
 	 * - seo_follow         false|true
 	 * - seo_noindex        false|true
 	 * - "Custom Fieldname" @see Meta
 	 * - @see Attachment::setAttachedFile()  relative file path
-	 * - @see Attachment::setAttachmentMetadata()  serialized array with image meta data
+	 * - @see Attachment::setMetadata()  serialized array with image meta data
 	 *
 	 * @param DOMNode $elt
 	 *
@@ -260,14 +263,24 @@ class Post extends Item
 
 		switch ($key)
 		{
-		case 'seo_follow':
-		case 'seo_noindex':
-			$key = str_replace('seo_', '', $key);
-			$this->meta[$key] = $value === 'true' ? true : false;
-			break;
-		default:
-			$node  = new DOMElement($key, $value);
+		case '_wp_page_template':
+		case '_wp_attachment_image_alt':
+			$node = new DOMElement($key, $value);
 			$this->set($node, 'meta');
+			break;
+
+		case '_wp_attached_file':
+		case '_wp_attachment_metadata': # deserialize
+		case '_wp_attachment_backup_sizes': # deserialize
+			$node = new DOMElement($key, $value);
+			$this->set($node, 'meta');
+			break;
+
+		default:
+			// possible Plugin meta elements
+			$transform = $this->transform($elt->nodeName);
+			$transform->apply($elt, $this);
+			break;
 		}
 
 		return $this;
@@ -293,7 +306,7 @@ class Post extends Item
 	 *
 	 * @return Post
 	 */
-	protected function setCategory(DOMNode $elt): Post
+	public function setCategory(DOMNode $elt): Post
 	{
 		$value    = $elt->textContent;
 		$domain   = $elt->attributes->getNamedItem('domain');
@@ -308,15 +321,21 @@ class Post extends Item
 	}
 
 	/**
-	 * Called on `<wp:postmeta>`, stores the template as a potential blueprint
-	 * name for the Kirby\Page.
+	 * Called on `<wp:postmeta>`, stores the template name as a potential
+	 * blueprint name for the Kirby\Page.
 	 *
-	 * @param string $value
+	 * @param DOMNode $elt
 	 * @return Post
 	 */
-	private function setTemplate(string $value): Post
+	public function setTemplate(DOMNode $elt): Post
 	{
+		$value = basename($elt->textContent, '.php');
 		$this->template = $value;
+
+		// note as blueprint
+		$value = str_replace('template-', '', $value);
+		$this->site()->setBlueprint($this->filepath, $value);
+
 		return $this;
 	}
 

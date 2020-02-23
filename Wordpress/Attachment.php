@@ -104,10 +104,23 @@ class Attachment extends Post
 	 * @param DOMNode $elt
 	 * @return Attachment
 	 */
-	public function setAttachmentMetadata(DOMNode $elt): Attachment
+	public function setMetadata(DOMNode $elt): Attachment
 	{
 		// @todo split into sidecar file (Transform?), IPTC etc.
 		$this->meta['metadata'] = unserialize($elt->textContent);
 		return $this;
 	}
+	public function setBackupSizes(DOMNode $elt): Attachment
+	{
+		// @todo split into sidecar file (Transform?), IPTC etc.
+		$this->meta['sizes'] = unserialize($elt->textContent);
+		return $this;
+	}
+
+	public function setImageAlt(DOMNode $elt): Attachment
+	{
+		$this->addField('AltText', $elt->textContent);
+		return $this;
+	}
+
 }

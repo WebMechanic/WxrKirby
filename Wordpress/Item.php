@@ -84,6 +84,8 @@ class Item
 	 * @param string  $store 'data|meta', property to store unknown elements
 	 *
 	 * @return Item
+	 * @see  Post::setMeta()
+	 * @see  Attachment::setMetadata(), Attachment::setImageAlt()
 	 * @todo apply Transforms when setting a property @see Kirby\Content::set()
 	 */
 	public function set(DOMNode $elt, $store = 'fields'): Item
@@ -96,9 +98,9 @@ class Item
 		}
 
 		/* author_id/post_id = id, post_parent = parent, postmeta = meta */
+		$prop   = preg_replace('/^_wp_?/', '', $prop);
 		$prop   = preg_replace($this->prefixFilter, '', $prop);
-		$method = preg_replace('/^_wp_?/', '', $prop);
-		$method = 'set' . ucwords($method, '_');
+		$method = 'set' . ucwords($prop, '_');
 		$method = str_replace('_', '', $method);
 
 		/* only deal with this if there's some content.
