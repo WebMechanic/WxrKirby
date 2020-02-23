@@ -331,7 +331,7 @@ class Converter
 	 */
 	public function setAuthor(DOMElement $wp_author): Converter
 	{
-		$author = new Author($this);
+		$author = new Author();
 		$author->parseNode($wp_author);
 		$this->authors[$author->getUsername()] = $author;
 		return $this;

@@ -228,9 +228,10 @@ class Item
 	}
 
 	/**
+	 * @param string $fieldname
 	 * @return string
 	 */
-	public function getField($fieldname): string
+	public function getField(string $fieldname): string
 	{
 		return isset($this->fields[$fieldname]) ? $this->fields[$fieldname] : '';
 	}

@@ -34,7 +34,6 @@ class WXR
 	 * in your Converter instance call `$this->convert()`.
 	 *
 	 * @param string $xmlPath
-	 * @param string $targetPath for Kirby output file
 	 */
 	function __construct(string $xmlPath)
 	{
