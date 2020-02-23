@@ -23,10 +23,14 @@
 
 namespace WebMechanic\Converter\Kirby;
 
+use WebMechanic\Converter\Converter;
 use WebMechanic\Converter\Wordpress\Item;
 
 class Author extends Content
 {
+	/** @var string Kirby content folder; updated at runtime */
+	protected $contentPath = '/site/accounts/';
+
 	/**
 	 * @see setLogin()
 	 * @var string this could go into a "user.txt" for a valid Kirby account
@@ -45,7 +49,7 @@ class Author extends Content
 	/** @var array  Account data (user.txt) */
 	protected $user = ['firstName' => null, 'lastName' => null, 'fullName' => null];
 
-	/** @var array normalise all author_xx element names */
+	/** @var array normalize all wp:author_xyz element names */
 	protected $prefixFilter = '/^author_?/';
 
 	/**
@@ -151,6 +155,7 @@ class Author extends Content
 	 */
 	public function assign($author)
 	{
+		$this->ext = Converter::getOption('extension', '.txt');
 		return $this;
 	}
 
@@ -183,6 +188,11 @@ ACCOUNT;
 	public function toJson(): Author
 	{
 		return $this;
+	}
+
+	public function __toString()
+	{
+		return $this->username;
 	}
 }
 
