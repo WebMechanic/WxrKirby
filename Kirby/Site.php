@@ -18,6 +18,8 @@ use WebMechanic\Converter\Wordpress\Channel;
 
 class Site extends Content
 {
+	protected $contentPath = '/site/';
+
 	/**
 	 * This is like Kirby's `site.txt` and will end up in the same folder.
 	 * It's using a different name 'cos accidents happen...
@@ -25,7 +27,7 @@ class Site extends Content
 	 * @see setFilename();
 	 * @var string Wordpress Site metadata useful for Kirby
 	 */
-	protected $filename = 'wordpress.txt';
+	protected $filename = 'wordpress';
 
 	/** @var string Website Title */
 	protected $title;
@@ -34,16 +36,27 @@ class Site extends Content
 	protected $blueprints = ['/' => 'default'];
 
 	/**
+	 * @see rewriteApache()
+	 * @var array PCRE patterns to map WP with Kirby URLs
+	 */
+	protected $rewriteMap = ['\/slides\/.*' => '/gallery/{filepath}/{filename}'];
+
+	/**
 	 * @param Channel $channel
 	 * @return mixed|void
 	 */
 	public function assign($channel)
 	{
+		$this->ext = Converter::getOption('extension', '.txt');
+
 		$this->title  = $channel->title;
 		$this->url    = $channel->link;
 		$this->fields = $channel->fields;
 	}
 
+	/**
+	 * @todo use Kirby\Cms\File::create() and Kirby\Toolkit\F
+	 */
 	public function writeOutput()
 	{
 		$content = <<<OUT
@@ -56,12 +69,11 @@ Link: {$this->sourceUrl}
 
 OUT;
 
-		foreach ($this->fields as $field => $data)
-		{
+		foreach ($this->fields as $field => $data) {
 			if (is_array($data)) {
 				$data = $data[0];
 			}
-			$field = ucfirst($field);
+			$field   = ucfirst($field);
 			$content .= <<<OUT
 {$field}: {$data}
 ----
@@ -77,25 +89,25 @@ OUT;
 	/**
 	 * Add the name of a $blueprint file to be used for content of the given $path
 	 *
-	 * @param string $path
+	 * @param string $filepath
 	 * @param string $blueprint
 	 *
 	 * @return Site
 	 */
-	public function setBlueprint(string $path, string $blueprint): Site
+	public function setBlueprint(string $filepath, string $blueprint): Site
 	{
-		$this->blueprints[$path] = $blueprint;
+		$this->blueprints[$filepath] = $blueprint;
 		return $this;
 	}
 
 	/**
-	 * @param string $path
+	 * @param string $filepath
 	 *
 	 * @return string
 	 */
-	public function getBlueprint(string $path): string
+	public function getBlueprint(string $filepath): string
 	{
-		return $this->blueprints[$path];
+		return $this->blueprints[$filepath];
 	}
 
 	/**

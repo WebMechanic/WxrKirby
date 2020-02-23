@@ -33,7 +33,7 @@ class Page extends Content
 	protected $id = null;
 
 	/** Kirby system fields */
-	private $blueprint = 'default';
+	protected $blueprint = 'default';
 	protected $filename = 'default.txt';
 
 	/**
@@ -51,7 +51,7 @@ class Page extends Content
 	public function setBlueprint(string $blueprint): Page
 	{
 		$this->blueprint = $blueprint;
-		$this->filename = $blueprint . $this->site()->ext;
+		$this->filename  = $blueprint . $this->ext;
 		return $this;
 	}
 
@@ -84,10 +84,67 @@ class Page extends Content
 	 * a Kirby Page file.
 	 *
 	 * @param Post $post
+	 * @todo Convert inline IMG in Post::content, excerpt, description
+	 * @todo Convert inline LINK in Post::content, excerpt, description
 	 */
 	public function assign($post)
 	{
-		// TODO: Implement assign() method.
+		$this->ext = Converter::getOption('extension', '.txt');
+
+		$props = [
+			'parent', 'id', 'title', 'link',
+			'name', 'filepath',
+			'blueprint' => 'template',
+		];
+		foreach ($props as $method => $prop) {
+			if (is_string($method)) {
+				$method = 'set' . ucfirst("{$method}");
+			}
+			if (method_exists($this, $method)) {
+				$this->$method($post->{$prop});
+			} else {
+				$this->set($prop, $post->{$prop});
+			}
+		}
+
+		$props = ['tags', 'categories'];
+		foreach ($props as $prop) {
+			$value = $post->{$prop};
+			if (is_array($value)) {
+				$this->set($prop, implode(',', $value));
+			} else {
+				$this->set($prop, $value);
+			}
+		}
+
+		$props = [
+			'meta', 'fields', 'data',
+			'creator', 'date', 'status'
+		];
+		foreach ($props as $prop) {
+			$method = 'set' . ucfirst("{$prop}");
+			foreach ((array) $post->{$prop} as $key => $value) {
+				if (method_exists($this, $method)) {
+					$this->$method($key, $value);
+				} else {
+					$this->content[$key] = $value;
+				}
+			}
+		}
+
+		# hints
+		$props = ['content', 'excerpt', 'description'];
+		foreach ($props as $prop) {
+			$this->content[$prop] = $post->{$prop};
+		}
+		if ($post->hints & Post::PARSE_LINK) {
+			echo '# Convert inline LINK ', PHP_EOL;
+		}
+		if ($post->hints & Post::PARSE_IMG) {
+			echo '# Convert inline IMG ', PHP_EOL;
+		}
+
+//		$props = ['content_html', 'excerpt_html'];
 	}
 
 	/**
@@ -95,7 +152,12 @@ class Page extends Content
 	 */
 	public function writeOutput()
 	{
-		// TODO: Implement writeOutput() method.
+		//	$subtitle = $post->getField('Subtitle');
+		echo <<<LOG
+Page: {$this->id} $this->link
+      {$this->title}
+
+LOG;
 	}
 
 }

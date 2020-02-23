@@ -23,7 +23,8 @@ class Channel extends Item
 
 	/**
 	 * Extract some elements of Wordpress <channel> for Kirby's site file.
-	 * Only deals with its simple elements.
+	 * Only deals with its simple elements and ignores some with redundant
+	 * information.
 	 * Author <wp:author> and Item <item> are handled separately in WXR.
 	 *
 	 * @param DOMNode $channel
@@ -36,6 +37,7 @@ class Channel extends Item
 		/** @var DOMElement $elt */
 		foreach ($channel->childNodes as $elt) {
 			if ($elt->nodeType !== XML_ELEMENT_NODE) continue;
+			if (empty($elt->textContent)) continue;
 
 			switch ($elt->localName) {
 			case 'image':
@@ -44,7 +46,7 @@ class Channel extends Item
 				break;
 
 			case 'item':
-				/* we leave and let WXR::parse <item> and <wp:author> */
+				/* we leave and let WXR::parse handle this */
 				return $this;
 				break;
 

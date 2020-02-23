@@ -12,25 +12,32 @@ namespace WebMechanic\Converter\Kirby;
 use DOMNode;
 use WebMechanic\Converter\Converter;
 
+use Kirby\Cms\File;
+use Kirby\Toolkit\F;
+
 /**
  * Transform a Wordpress content <item> into a Kirby content Site, File,
  * Page or Author.
  */
 abstract class Content
 {
-	protected $contentPath = '';
+	/** @var string Kirby content folder; updated at runtime */
+	protected $contentPath = '/content/';
+	/** @var string relative path in $contentPath of this file */
 	protected $filepath = '';
-	protected $filename = '';
-	protected $ext = 'txt';
+	/** @var string this file's base filename */
+	protected $filename = 'default';
+	/** @var string file extension; updated at runtime */
+	protected $ext = '.txt';
 
 	/** @var string original WP URL of the item */
 	protected $url = '';
 
-	/**
-	 * @var array PCRE patters to map WP with Kirby URLs
-	 * @see rewrite()
-	 */
-	protected $rewriteMap = ['\/slides\/.*' => '/gallery/{filepath}/{filename}'];
+	/** @var string link element value of the WP <item> or <channel> */
+	protected $link = '';
+
+	/** @var integer Page-ID of the parent <item> (to recreate menus) */
+	protected $parent = 0;
 
 	/** @var array */
 	protected $content = [];
@@ -74,6 +81,10 @@ abstract class Content
 	 */
 	public function set(string $prop, $value): Content
 	{
+		if (empty($value)) {
+			return $this;
+		}
+
 		// turn author_id > id, post_parent > parent etc.
 		$method = preg_replace($this->prefixFilter, '', $prop);
 		$method = 'set' . ucwords($method, '_');
@@ -84,7 +95,11 @@ abstract class Content
 		}
 
 		// vanilla assignment
-		$this->content[$prop] = $value;
+		if (isset($this->{$prop})) {
+			$this->{$prop} = (string) $value;
+		} else {
+			$this->content[$prop] = (string) $value;
+		}
 		return $this;
 	}
 
@@ -109,7 +124,7 @@ abstract class Content
 	public function setFilename(string $filename): Content
 	{
 		$this->filename = basename($filename);
-		$this->filepath = $this->getContentPath() .'/'. $this->filename;
+		$this->setFilepath($this->getContentPath() . '/' . $this->filename);
 		return $this;
 	}
 
@@ -134,12 +149,13 @@ abstract class Content
 	 */
 	public function getContentPath($folder = 'content'): string
 	{
-		$paths = Converter::getOption('paths');
+		$paths             = Converter::getOption('paths');
 		$this->contentPath = $paths[$folder];
 		return $this->contentPath;
 	}
 
 	/**
+	 * @param string $fieldname a content field
 	 * @return string
 	 */
 	public function getContent(string $fieldname): string

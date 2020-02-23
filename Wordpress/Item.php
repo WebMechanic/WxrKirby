@@ -74,11 +74,13 @@ class Item
 	}
 
 	/**
-	 * Find and call a setter for the element in a subclass and delegates
-	 * to the corresponding methods. For elements with the`wp:post_` prefix,
-	 * the prefix is removed, i.e. post_id = id, post_parent = parent, postmeta = meta.
+	 * Find and call a setter for the element value in a subclass and delegate
+	 * to the corresponding methods. For elements with a common prefix like,
+	 * page_, post_, attachment_, author_, _wp_, that prefix is removed to
+	 * normalize property names.
+	 *
 	 * Handles <content:encoded>, <excerpt:encoded>.
-	 * Unknown element names are saved in $store (data[]).
+	 * Unknown element names are saved in $store fields[].
 	 *
 	 * @param DOMNode $elt
 	 * @param string  $store 'data|meta', property to store unknown elements
@@ -97,7 +99,7 @@ class Item
 			$prop = $elt->prefix;
 		}
 
-		/* author_id/post_id = id, post_parent = parent, postmeta = meta */
+		/* _wp_attached_file = attached_file, post_parent = parent, postmeta = meta */
 		$prop   = preg_replace('/^_wp_?/', '', $prop);
 		$prop   = preg_replace($this->prefixFilter, '', $prop);
 		$method = 'set' . ucwords($prop, '_');
@@ -147,16 +149,6 @@ class Item
 	}
 
 	/**
-	 * @param DOMNode $desc
-	 * @return Item
-	 */
-	public function setDescription(DOMNode $desc): Item
-	{
-		$this->description = $this->clean($desc->textContent);
-		return $this;
-	}
-
-	/**
 	 * Applies to <link> (channel, item), <wp:base_site_url>, <wp:base_blog_url>.
 	 *
 	 * @param DOMNode $link
@@ -167,8 +159,8 @@ class Item
 	public function setLink(DOMNode $link): Item
 	{
 		$link->textContent = $this->cleanUrl($link->textContent);
-
 		$this->link = $link->textContent;
+
 		return $this;
 	}
 
@@ -187,16 +179,6 @@ class Item
 		$url = str_replace('://www.', '://', $url);
 
 		return $url;
-	}
-
-	/**
-	 * @param DOMNode $elt
-	 * @return Item
-	 */
-	public function setType(DOMNode $elt): Item
-	{
-		$this->type = $elt->textContent;
-		return $this;
 	}
 
 	/**

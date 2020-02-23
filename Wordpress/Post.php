@@ -57,6 +57,10 @@ class Post extends Item
 
 	/** @var int bit mask for HTML parser hints */
 	protected $hints = 0;
+	/** @internal int source fields being hinted */
+	const HINT_DESCRIPTION  = 16;
+	const HINT_CONTENT      = 32;
+	const HINT_EXCERPT      = 64;
 	/** @internal int parse for any HTML */
 	const PARSE_HTML = 1;
 	/** @internal int parse for a and link and strip href for Attachment */
@@ -104,12 +108,13 @@ class Post extends Item
 	 * useful. In such cases: subclass and use regular expressions.
 	 *
 	 * @param string $html
+	 * @param int    $source one of HINT_CONTENT, HINT_EXCERPT, HINT_DESCRIPTION
 	 * @return Post
 	 */
-	public function hintHtml(string $html): Post
+	public function hintHtml(string $html, int $source): Post
 	{
 		if (preg_match('/<[a-z]+\s?/', $html)) {
-			$this->hints = self::PARSE_HTML;
+			$this->hints = self::PARSE_HTML | $source;
 			if (strpos($html, 'href=')) $this->hints |= self::PARSE_LINK;
 			if (strpos($html, '<img')) $this->hints |= self::PARSE_IMG;
 			if (strpos($html, 'srcset=')) $this->hints |= self::PARSE_IMG;
@@ -128,7 +133,7 @@ class Post extends Item
 	{
 		if (!empty($elt->textContent)) {
 			$this->content_html = $elt->textContent;
-			if ($this->hintHtml($this->content_html)->hints) {
+			if ($this->hintHtml($this->content_html, static::HINT_CONTENT)->hints) {
 				$this->content = $this->htmlConvert($this->content_html);
 			} else {
 				$this->content = $this->content_html;
@@ -154,7 +159,7 @@ class Post extends Item
 	{
 		if (!empty($elt->textContent)) {
 			$this->excerpt_html = $elt->textContent;
-			if ($this->hintHtml($this->excerpt_html)->hints) {
+			if ($this->hintHtml($this->excerpt_html, static::HINT_EXCERPT)->hints) {
 				$this->excerpt = $this->htmlConvert($this->excerpt_html);
 			} else {
 				$this->excerpt = $this->excerpt_html;
@@ -169,6 +174,21 @@ class Post extends Item
 			return $this->excerpt_html;
 		}
 		return $this->excerpt;
+	}
+
+	/**
+	 * @param DOMNode $desc
+	 * @return Item
+	 */
+	public function setDescription(DOMNode $desc): Item
+	{
+		if (!empty($desc->textContent)) {
+			$this->description = $desc->textContent;
+			if ($this->hintHtml($this->description, static::HINT_DESCRIPTION)->hints) {
+				$this->description = $this->htmlConvert($this->description);
+			}
+		}
+		return $this;
 	}
 
 	/**
@@ -290,9 +310,12 @@ class Post extends Item
 	}
 
 	/**
-	 * Get the category and tags of this post.
-	 * `<category domain="category" nicename="blog-kategoriename1"><![CDATA[Kategoriename 1]]></category>`
-	 * `<category domain="category" nicename="blog-kategoriename2"><![CDATA[Kategoriename 2]]></category>`
+	 * Get categories and tags of this post.
+	 * `<category domain="category" nicename="blog-categoriename1"><![CDATA[Categorie Name 1]]></category>`
+	 * `<category domain="category" nicename="blog-categoriename2"><![CDATA[Categorie Name 2]]></category>`
+	 *
+	 * Not handled here:
+	 * `<category domain="nav_menu" nicename="mainmenu"><![CDATA[Main Menu]]></category>`
 	 *
 	 * @param DOMNode $elt
 	 *

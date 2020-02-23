@@ -10,6 +10,8 @@
 
 namespace WebMechanic\Converter\Kirby;
 
+use WebMechanic\Converter\Converter;
+
 class File extends Content
 {
 	/**
@@ -18,6 +20,7 @@ class File extends Content
 	 */
 	public function assign($item)
 	{
+		$this->ext = Converter::getOption('extension', '.txt');
 		// TODO: Implement assign() method.
 	}
 

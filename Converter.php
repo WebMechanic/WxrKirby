@@ -108,8 +108,8 @@ class Converter
 		// elements ignored but "sub-classable"
 		'delegate' => ['nav_menu_item' => null],
 
-		// discarded plugin data
-		'discard' => ['wooframework', 'ngg_pictures', 'ngg_gallery', 'gal_display_source', 'slide', 'lightbox_library'],
+		// discarded plugin data 'post_type'
+		'discard' => ['display_type','wooframework','ngg_pictures','ngg_gallery','gal_display_source','slide','lightbox_library'],
 
 		// League\HTMLToMarkdown config options
 		'html2md' => ['hard_break' => false],
