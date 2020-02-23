@@ -30,9 +30,6 @@ class Site extends Content
 	/** @var string Website Title */
 	protected $title;
 
-	/** @var string Website URL taken from <channel><link> */
-	protected $url;
-
 	/** @var array  blueprints per path/URL */
 	protected $blueprints = ['/' => 'default'];
 
@@ -42,10 +39,10 @@ class Site extends Content
 	 */
 	public function assign($channel)
 	{
-		$this->title     = $channel->title;
-		$this->sourceUrl = $channel->url;
-		$this->url       = $channel->link;
-		$this->fields    = $channel->fields;
+		$this->title  = $channel->title;
+		$this->url    = $channel->url;
+		$this->link   = $channel->link;
+		$this->fields = $channel->fields;
 	}
 
 	public function writeOutput()

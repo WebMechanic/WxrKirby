@@ -24,7 +24,7 @@ abstract class Content
 	protected $ext = '.txt';
 
 	/** @var string original WP URL of the item */
-	protected $sourceUrl = '';
+	protected $url = '';
 
 	/**
 	 * @var array PCRE patters to map WP with Kirby URLs
