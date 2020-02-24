@@ -93,8 +93,9 @@ class Page extends Content
 		$this->ext = Converter::getOption('extension', '.txt');
 
 		$props = [
-			'parent', 'id', 'title', 'link',
+			'id', 'title', 'link', 'parent',
 			'name', 'filepath',
+			'creator', /* Author */
 			'blueprint' => 'template',
 		];
 		foreach ($props as $method => $prop) {
@@ -120,7 +121,7 @@ class Page extends Content
 
 		$props = [
 			'meta', 'fields', 'data',
-			'creator', 'date', 'status'
+			'date', 'status'
 		];
 		foreach ($props as $prop) {
 			$method = 'set' . ucfirst("{$prop}");
@@ -136,13 +137,22 @@ class Page extends Content
 		# hints
 		$props = ['content', 'excerpt', 'description'];
 		foreach ($props as $prop) {
-			$this->content[$prop] = $post->{$prop};
+			$this->content[$prop] = $this->getContent($prop);
 		}
-		if ($post->hints & Post::PARSE_LINK) {
-			echo '# Convert inline LINK ', PHP_EOL;
+
+		if ($post->hasFlag(Post::HINT_CONTENT)) {
+			$markdown = $post->getContent();
+			$markdown = $post->cleanUrl($markdown);
+			echo "# {$post->id} Convert Content {$post->hints}",
+				' Link: ', $post->hasFlag(Post::PARSE_LINK),
+				' Img: ', $post->hasFlag(Post::PARSE_IMG), PHP_EOL;
+			// Markdown link '(http://www.azentro.de'
 		}
-		if ($post->hints & Post::PARSE_IMG) {
-			echo '# Convert inline IMG ', PHP_EOL;
+
+		if ($post->hasFlag(Post::HINT_EXCERPT)) {
+			echo "# {$post->id} Convert Excerpt  {$post->hints}",
+				' Link: ', $post->hasFlag(Post::PARSE_LINK),
+				' Img: ', $post->hasFlag(Post::PARSE_IMG), PHP_EOL;
 		}
 
 //		$props = ['content_html', 'excerpt_html'];

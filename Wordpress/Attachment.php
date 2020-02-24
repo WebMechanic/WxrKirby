@@ -13,6 +13,8 @@ use DOMNode;
 
 class Attachment extends Post
 {
+	protected $type = 'attachment';
+
 	/**
 	 * WP creates a public "attachment URL" for each upload.
 	 * These URLs are not automatically displayed or exposed per se but may
@@ -24,7 +26,7 @@ class Attachment extends Post
 	public $url = '';
 
 	/** @var array preg_replace node name prefixes to simplify setters */
-	protected $prefixFilter = '/^(post|attachment)_?/';
+	protected $prefixFilter = '/^(post|page|attachment)_?/';
 
 	/**
 	 * Attachments in WP reside in `/wp-content/uploads/YYYY/MMM/file.jpg`

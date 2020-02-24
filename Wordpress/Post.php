@@ -15,6 +15,8 @@ use WebMechanic\Converter\Meta;
 
 class Post extends Item
 {
+	protected $type = 'post';
+
 	/** @var int wp:post_parent */
 	protected $parent = 0;
 
@@ -125,6 +127,16 @@ class Post extends Item
 	}
 
 	/**
+	 * Test if any of the PARSE_xxx or HINT_xxx flags is set.
+	 *
+	 * @param int $flag
+	 * @return int
+	 */
+	public function hasFlag(int $flag) {
+		return $this->hints & $flag;
+	}
+
+	/**
 	 * @param DOMNode $elt
 	 *
 	 * @return Post
@@ -142,7 +154,7 @@ class Post extends Item
 		return $this;
 	}
 
-	public function getContent($original = true)
+	public function getContent($original = false)
 	{
 		if ($original) {
 			return $this->content_html;

@@ -11,10 +11,11 @@ namespace WebMechanic\Converter\Wordpress;
 
 use DOMElement;
 use DOMNode;
-use WebMechanic\Converter\Converter;
 
 class Channel extends Item
 {
+	protected $type = 'channel';
+
 	/**
 	 * @see $link
 	 * @var string incl. protocol
@@ -50,14 +51,11 @@ class Channel extends Item
 				return $this;
 				break;
 
-			case 'title':
-				/* @see Item::setTitle() */
+			case 'title':           /* @see Item::setTitle() */
 			case 'description':
 			case 'language':
 			case 'link':
-			case 'base_blog_url':
-				/* @see setBaseSiteUrl(), setBaseBlogUrl() */
-			case 'generator':
+			case 'base_blog_url':   /* @see setBaseBlogUrl() */
 				$this->set($elt);
 				break;
 			}

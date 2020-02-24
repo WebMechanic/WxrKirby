@@ -49,12 +49,6 @@ class Item
 	{
 		$this->XML = $XML;
 
-		if (!isset($this->prefixFilter)) {
-			$name               = explode('\\', strtolower(get_class($this)));
-			$name               = array_pop($name);
-			$this->prefixFilter = "/^{$name}_?/";
-		}
-
 		$this->parse($node);
 	}
 
@@ -99,19 +93,20 @@ class Item
 			$prop = $elt->prefix;
 		}
 
-		/* _wp_attached_file = attached_file, post_parent = parent, postmeta = meta */
-		$prop   = preg_replace('/^_wp_?/', '', $prop);
-		$prop   = preg_replace($this->prefixFilter, '', $prop);
-		$method = 'set' . ucwords($prop, '_');
-		$method = str_replace('_', '', $method);
-
 		/* only deal with this if there's some content.
 		 * Empty nodes or <![CDATA[]]> is not. */
 		if ($elt->firstChild) {
+
+			/* _wp_attached_file = attached_file, post_parent = parent, postmeta = meta */
+			$prop   = preg_replace('/^_wp_?/', '', $prop);
+			$prop   = preg_replace($this->prefixFilter, '', $prop);
+			$method = 'set' . ucwords($prop, '_');
+			$method = str_replace('_', '', $method);
+
 			$transform = $this->transform($elt->nodeName);
 			$transform->apply($elt, $this);
 
-			// element data setter
+			// element setter
 			if (method_exists($this, $method)) {
 				$this->$method($elt);
 				return $this;
@@ -121,6 +116,11 @@ class Item
 			if (isset($this->{$prop})) {
 				$this->{$prop} = $elt->textContent;
 			} else {
+				$setter = 'set' . ucfirst($store);
+				if (method_exists($this, $setter)) {
+					$this->$setter($prop, $elt->textContent);
+					return $this;
+				}
 				$this->{$store}[$prop] = $elt->textContent;
 			}
 		}
@@ -136,6 +136,12 @@ class Item
 		}
 
 		return (isset($this->{$name})) ? $this->{$name} : null;
+	}
+
+	public function setType(DOMNode $type): Item
+	{
+		$this->type = ucfirst($type->textContent);
+		return $this;
 	}
 
 	/**
@@ -159,24 +165,27 @@ class Item
 	public function setLink(DOMNode $link): Item
 	{
 		$link->textContent = $this->cleanUrl($link->textContent);
-		$this->link = $link->textContent;
+		$this->link        = $link->textContent;
 
 		return $this;
 	}
 
 	/**
 	 * Have base URLs use HTTPS and drop 'www' hostname.
+	 * Checks $options['resolveUrls'] to enable HTTPS, enable www removal.
 	 *
 	 * @param string $url
 	 * @return string
-	 * @todo use config options to: enable HTTPS, enable www removal, replace domainname
 	 */
 	public function cleanUrl(string $url): string
 	{
+		static $config = null;
+		if ($config === null) $config = (object) Converter::getOption('resolveUrls');
+
 		// HTTPS
-		$url = str_replace('http:', 'https:', $url);
+		if ($config->link->https) $url = str_replace('http:/', 'https:/', $url);
 		// no 'www'
-		$url = str_replace('://www.', '://', $url);
+		if (!$config->link->www)  $url = str_replace('://www.', '://', $url);
 
 		return $url;
 	}
@@ -221,10 +230,19 @@ class Item
 	public function addField(string $fieldname, string $value): Item
 	{
 		$fieldname                = ucfirst($fieldname);
-		$content                  = str_replace(array('<![CDATA[', ']]>'), '', $value);
-		$this->fields[$fieldname] = [$content, $value];
+		$this->fields[$fieldname] = $value;
 
 		return $this;
+	}
+
+	/**
+	 * @param string $fieldname
+	 * @param string $value
+	 * @return Item
+	 */
+	public function setFields(string $fieldname, string $value): Item
+	{
+		return $this->addField($fieldname, $value);
 	}
 
 	/**

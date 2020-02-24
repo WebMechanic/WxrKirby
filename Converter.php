@@ -112,7 +112,10 @@ class Converter
 		'discard' => ['display_type','wooframework','ngg_pictures','ngg_gallery','gal_display_source','slide','lightbox_library'],
 
 		// League\HTMLToMarkdown config options
-		'html2md' => ['hard_break' => false],
+		'html2md' => [
+			'header_style' => 'atx',
+			'hard_break' => false,
+			],
 	];
 
 	protected $debug = false;
@@ -127,6 +130,12 @@ class Converter
 	{
 		$this->WXR       = new WXR($xml_path);
 		self::$converter = $this;
+
+		foreach (array_keys(static::$options['resolveUrls']) as $key) {
+			if (is_string(static::$options['resolveUrls'][$key])) {
+				static::$options['resolveUrls'][$key] = json_decode(static::$options['resolveUrls'][$key]);
+			}
+		}
 
 		$this->checkFolders();
 	}
