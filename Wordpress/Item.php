@@ -323,6 +323,7 @@ class Item
 	 */
 	public function getField(string $fieldname): string
 	{
+		$fieldname = ucfirst($fieldname);
 		return isset($this->fields[$fieldname]) ? $this->fields[$fieldname] : '';
 	}
 
