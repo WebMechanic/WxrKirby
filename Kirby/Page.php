@@ -137,22 +137,22 @@ class Page extends Content
 		# hints
 		$props = ['content', 'excerpt', 'description'];
 		foreach ($props as $prop) {
-			$this->content[$prop] = $this->getContent($prop);
+			$this->content[$prop] = $post->{$prop};
 		}
 
-		if ($post->hasFlag(Post::HINT_CONTENT)) {
+		if ($post->hasFlag(Post::PARSE_CONTENT)) {
 			$markdown = $post->getContent();
 			$markdown = $post->cleanUrl($markdown);
 			echo "# {$post->id} Convert Content {$post->hints}",
-				' Link: ', $post->hasFlag(Post::PARSE_LINK),
-				' Img: ', $post->hasFlag(Post::PARSE_IMG), PHP_EOL;
+				' Link: ', $post->hasFlag(Post::HINT_LINK),
+				' Img: ', $post->hasFlag(Post::HINT_IMG), PHP_EOL;
 			// Markdown link '(http://www.azentro.de'
 		}
 
-		if ($post->hasFlag(Post::HINT_EXCERPT)) {
+		if ($post->hasFlag(Post::PARSE_EXCERPT)) {
 			echo "# {$post->id} Convert Excerpt  {$post->hints}",
-				' Link: ', $post->hasFlag(Post::PARSE_LINK),
-				' Img: ', $post->hasFlag(Post::PARSE_IMG), PHP_EOL;
+				' Link: ', $post->hasFlag(Post::HINT_LINK),
+				' Img: ', $post->hasFlag(Post::HINT_IMG), PHP_EOL;
 		}
 
 //		$props = ['content_html', 'excerpt_html'];

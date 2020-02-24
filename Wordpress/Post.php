@@ -60,15 +60,16 @@ class Post extends Item
 	/** @var int bit mask for HTML parser hints */
 	protected $hints = 0;
 	/** @internal int source fields being hinted */
-	const HINT_DESCRIPTION  = 16;
-	const HINT_CONTENT      = 32;
-	const HINT_EXCERPT      = 64;
+	const PARSE_DESCRIPTION  = 16;
+	const PARSE_CONTENT      = 32;
+	const PARSE_EXCERPT      = 64;
 	/** @internal int parse for any HTML */
-	const PARSE_HTML = 1;
 	/** @internal int parse for a and link and strip href for Attachment */
-	const PARSE_LINK = 2;
+	const HINT_LINK = 1;
 	/** @internal int parse for image elements and strip src for Attachment */
-	const PARSE_IMG = 4;
+	const HINT_IMG = 2;
+	/** @internal int parse for srcset attributes for Attachment */
+	const HINT_SRCSET = 4;
 
 	/**
 	 * @param DOMNode $elt
@@ -116,10 +117,10 @@ class Post extends Item
 	public function hintHtml(string $html, int $source): Post
 	{
 		if (preg_match('/<[a-z]+\s?/', $html)) {
-			$this->hints = self::PARSE_HTML | $source;
-			if (strpos($html, 'href=')) $this->hints |= self::PARSE_LINK;
-			if (strpos($html, '<img')) $this->hints |= self::PARSE_IMG;
-			if (strpos($html, 'srcset=')) $this->hints |= self::PARSE_IMG;
+			$this->hints = $source;
+			if (strpos($html, 'href=')) $this->hints |= self::HINT_LINK;
+			if (strpos($html, '<img')) $this->hints |= self::HINT_IMG;
+			if (strpos($html, 'srcset=')) $this->hints |= self::HINT_SRCSET;
 		} else {
 			$this->hints = 0;
 		}
@@ -145,7 +146,9 @@ class Post extends Item
 	{
 		if (!empty($elt->textContent)) {
 			$this->content_html = $elt->textContent;
-			if ($this->hintHtml($this->content_html, static::HINT_CONTENT)->hints) {
+			if ($this->hintHtml($this->content_html, static::PARSE_CONTENT)->hints) {
+				$this->extractInlineTags($this->content_html);
+				$this->hints ^= static::PARSE_CONTENT;
 				$this->content = $this->htmlConvert($this->content_html);
 			} else {
 				$this->content = $this->content_html;
@@ -171,7 +174,7 @@ class Post extends Item
 	{
 		if (!empty($elt->textContent)) {
 			$this->excerpt_html = $elt->textContent;
-			if ($this->hintHtml($this->excerpt_html, static::HINT_EXCERPT)->hints) {
+			if ($this->hintHtml($this->excerpt_html, static::PARSE_EXCERPT)->hints) {
 				$this->excerpt = $this->htmlConvert($this->excerpt_html);
 			} else {
 				$this->excerpt = $this->excerpt_html;
@@ -196,7 +199,7 @@ class Post extends Item
 	{
 		if (!empty($desc->textContent)) {
 			$this->description = $desc->textContent;
-			if ($this->hintHtml($this->description, static::HINT_DESCRIPTION)->hints) {
+			if ($this->hintHtml($this->description, static::PARSE_DESCRIPTION)->hints) {
 				$this->description = $this->htmlConvert($this->description);
 			}
 		}
@@ -366,4 +369,29 @@ class Post extends Item
 		return $this;
 	}
 
+	public function extractInlineTags(string $html)
+	{
+		if ($this->hasFlag(Post::HINT_LINK)) {
+			$m = preg_match_all('/href="(.*)"/', $html, $href);
+			if ($m > 0) {
+				$this->hints ^= Post::HINT_LINK;
+				print_r($href[1]);
+			}
+		}
+		if ($this->hasFlag(Post::HINT_IMG)) {
+			$m = preg_match_all('/src="(.*)"/', $html, $src);
+			if ($m > 0) {
+				$this->hints ^= Post::HINT_IMG;
+				print_r($src[1]);
+			}
+		}
+		/* @todo parse srcset and store as Attachments */
+		if ($this->hasFlag(Post::HINT_SRCSET)) {
+			$m = preg_match_all('/srcset="(.*)"/', $html, $srcset);
+			if ($m > 0) {
+				$this->hints ^= Post::HINT_SRCSET;
+				print_r($srcset[1]);
+			}
+		}
+	}
 }
