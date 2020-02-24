@@ -388,10 +388,7 @@ class Post extends Item
 	public function setTemplate(DOMNode $elt): Post
 	{
 		$value = basename($elt->textContent, '.php');
-		$this->template = $value;
-
-		// note as blueprint
-		$value = str_replace('template-', '', $value);
+		$this->template = str_replace('template-', '', $value);
 		$this->site()->setBlueprint($this->filepath, $value);
 
 		return $this;
