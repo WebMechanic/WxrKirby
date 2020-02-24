@@ -147,7 +147,7 @@ class Post extends Item
 		if (!empty($elt->textContent)) {
 			$this->content_html = $elt->textContent;
 			if ($this->hintHtml($this->content_html, static::PARSE_CONTENT)->hints) {
-				$this->extractInlineTags($this->content_html);
+				$this->extractInlineUrls($this->content_html);
 				$this->hints ^= static::PARSE_CONTENT;
 				$this->content = $this->htmlConvert($this->content_html);
 			} else {
@@ -240,6 +240,7 @@ class Post extends Item
 	/**
 	 * @param DOMNode $link
 	 * @return Item
+	 * @uses setFilepath()
 	 */
 	public function setLink(DOMNode $link): Item
 	{
@@ -369,29 +370,61 @@ class Post extends Item
 		return $this;
 	}
 
-	public function extractInlineTags(string $html)
+	public function extractInlineUrls(string $html)
 	{
+		$doc = new \DOMDocument();
+		libxml_use_internal_errors(true);
+
+		$doc->loadHTML('<?xml encoding="UTF-8"><html>'. $html . '</html>');
+		$doc->normalize();
+
+		$body = $doc->documentElement->firstChild;
+
 		if ($this->hasFlag(Post::HINT_LINK)) {
-			$m = preg_match_all('/href="(.*)"/', $html, $href);
-			if ($m > 0) {
+			/* @var \DOMNodeList $elms */
+			$elms = $body->getElementsByTagName('a');
+			if ($elms->length > 0) {
 				$this->hints ^= Post::HINT_LINK;
-				print_r($href[1]);
+				$data = 'links';
+				$this->collectAttributes($elms, 'href', $data);
 			}
 		}
+
 		if ($this->hasFlag(Post::HINT_IMG)) {
-			$m = preg_match_all('/src="(.*)"/', $html, $src);
-			if ($m > 0) {
+			/* @var \DOMNodeList */
+			$elms = $body->getElementsByTagName('img');
+			if ($elms->length > 0) {
 				$this->hints ^= Post::HINT_IMG;
-				print_r($src[1]);
+				$data = 'images';
+				$this->collectAttributes($elms, 'src', $data);
+				if ($this->hasFlag(Post::HINT_SRCSET)) {
+					$this->collectAttributes($elms, 'srcset', $data);
+				}
 			}
 		}
+
 		/* @todo parse srcset and store as Attachments */
 		if ($this->hasFlag(Post::HINT_SRCSET)) {
-			$m = preg_match_all('/srcset="(.*)"/', $html, $srcset);
-			if ($m > 0) {
+			/* @var \DOMNodeList */
+			$elms = $body->getElementsByTagName('source');
+			if ($elms->length > 0) {
 				$this->hints ^= Post::HINT_SRCSET;
-				print_r($srcset[1]);
+				$data = 'sources';
+				$this->collectAttributes($elms, 'srcset', $data);
 			}
 		}
 	}
+
+	private function collectAttributes(\DOMNodeList $elms, string $attr, string $store)
+	{
+		settype($this->data[$store], 'array');
+
+		/* @var DOMElement $elt */
+		for ($e = 0; $e < $elms->length; $e++) {
+			$elt  = $elms->item($e);
+			$link = $elt->getAttribute($attr);
+			array_push($this->data[$store], $this->cleanUrl($link));
+		}
+	}
+
 }
