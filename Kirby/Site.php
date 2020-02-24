@@ -35,6 +35,9 @@ class Site extends Content
 	/** @var string Website Hostname */
 	protected $host = '';
 
+	/** @var string previous WP Blog URL */
+	protected $blog = '';
+
 	/** @var array  blueprints per path/URL */
 	protected $blueprints = ['/' => 'default'];
 
@@ -55,6 +58,7 @@ class Site extends Content
 		$this->title  = $channel->title;
 		$this->url    = $channel->link;
 		$this->host   = $channel->host;
+		$this->blog   = $channel->blogUrl;
 
 		foreach ((array) $channel->fields as $key => $value) {
 			$method = 'set' . ucfirst("{$key}");
