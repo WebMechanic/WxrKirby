@@ -210,26 +210,48 @@ class Item
 		return htmlspecialchars($string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8', false);
 	}
 
+	/**
+	 * @return Converter
+	 * @uses WXR::getConverter()
+	 */
 	public function converter(): Converter
 	{
 		return $this->XML->getConverter();
 	}
 
+	/**
+	 * @return Channel
+	 * @uses WXR::getChannel()
+	 */
 	public function channel(): Channel
 	{
 		return $this->XML->getChannel();
 	}
 
+	/**
+	 * @return Site
+	 * @uses Converter::getSite()
+	 */
 	public function site(): Site
 	{
 		return $this->XML->getConverter()->getSite();
 	}
 
+	/**
+	 * @param string $username
+	 * @return Author
+	 * @uses Converter::getAuthor()
+	 */
 	public function author(string $username): Author
 	{
 		return $this->XML->getConverter()->getAuthor($username);
 	}
 
+	/**
+	 * @param string $elementName
+	 * @return Transform
+	 * @uses Converter::getTransform()
+	 */
 	public function transform(string $elementName): Transform
 	{
 		return $this->XML->getConverter()->getTransform($elementName);
@@ -239,6 +261,7 @@ class Item
 	 * @param string $fieldname
 	 * @param string $value
 	 * @return Item
+	 * @see setFields(), getField()
 	 */
 	public function addField(string $fieldname, string $value): Item
 	{
@@ -249,9 +272,14 @@ class Item
 	}
 
 	/**
+	 * This is a misnomer as it only sets a single fields. Serves as the
+	 * public proxy to addField().
+	 *
 	 * @param string $fieldname
 	 * @param string $value
 	 * @return Item
+	 * @uses addField()
+	 * @see getField()
 	 */
 	public function setFields(string $fieldname, string $value): Item
 	{
@@ -261,6 +289,7 @@ class Item
 	/**
 	 * @param string $fieldname
 	 * @return string
+	 * @see addField(), setFields()
 	 */
 	public function getField(string $fieldname): string
 	{
