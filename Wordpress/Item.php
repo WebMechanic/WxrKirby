@@ -295,8 +295,8 @@ class Item
 	}
 
 	/**
-	 * This is a misnomer as it only sets a single fields. Serves as the
-	 * public proxy to addField().
+	 * This is a misnomer as it only sets a single $fields entry.
+	 * Serves as proxy to addField().
 	 *
 	 * @param string $fieldname
 	 * @param string $value

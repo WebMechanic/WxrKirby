@@ -25,6 +25,7 @@ use DOMElement;
 use Kirby\Cms\App;
 
 use League\HTMLToMarkdown\HtmlConverter as HtmlConverter;
+
 use WebMechanic\Converter\Kirby\Author;
 use WebMechanic\Converter\Kirby\Page;
 use WebMechanic\Converter\Kirby\Site;
@@ -67,8 +68,6 @@ class Converter
 	public static $HTML;
 
 	/**
-	 * Arbitrary plugin stuff or WP internals we don't care about.
-	 *
 	 * title: Kirby Field used to store the Post title
 	 * text: Kirby Field used to store the Post content
 	 * paths: an array with folders to use for output
@@ -116,7 +115,7 @@ class Converter
 			'base_blog_url' => null,
 		],
 
-		// elements ignored but "sub-classable"
+		// ignored item types
 		'delegate' => ['nav_menu_item' => null],
 
 		// discarded plugin data 'post_type'
@@ -233,9 +232,7 @@ class Converter
 
 	public function getHtml(): HtmlConverter
 	{
-		// <br>, two spaces at the line end in output Markdown
-		$options =  static::getOption('html2md', ['hard_break' => false]);
-
+		$options =  static::getOption('html2md');
 		return static::$HTML = static::$HTML ?? new HtmlConverter($options);
 	}
 
