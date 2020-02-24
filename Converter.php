@@ -105,6 +105,17 @@ class Converter
 			'site' => null,
 		],
 
+		/** [WIP] Concept: how to handle self-referring URLs. @see Item::cleanUrl()
+			This affects XML element values like <link> and HTML markup inserted into content such as <a>, <img>, <source>.
+			- strip: true|false, remove protocol and domain from URLs (overrides www, https)
+			- https: true|false, make URL https
+			- www  : true|false, drop subdomain from URL */
+		'resolveUrls' => [
+			'link'          => '{"www":false, "https":true}',
+			'base_site_url' => '{"strip":true}',
+			'base_blog_url' => null,
+		],
+
 		// elements ignored but "sub-classable"
 		'delegate' => ['nav_menu_item' => null],
 

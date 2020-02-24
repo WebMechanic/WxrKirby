@@ -174,26 +174,48 @@ class Item
 	 *
 	 * @param string $url
 	 * @return string
+	 * @var array $config   how to resolveUrls'
+	 * @var string $host    the Site host incl. subdomain
+	 * @var string $domain  the Site host excl. subdomain
 	 */
 	public function cleanUrl(string $url): string
 	{
 		static $config = null, $host = null, $domain = null;
+
 		if ($config === null) {
 			$config = (object) Converter::getOption('resolveUrls');
 		}
 		if ($host === null) {
-			$host   = $this->channel()->host;
-			$domain = str_replace('www.', '', $host);
+			$host  = $this->channel()->host;
+			/* this might fail i.e. with british URLs w/o subdomain like 'domain.co.uk' */
+			$parts = explode('.', $host);
+			array_shift($parts);
+			$domain = implode('.', $parts);
 		}
 
-		// HTTPS
-		if ($config->link->https) {
-			$url = str_replace('http://'.$host, 'https://'.$host, $url);
-			$url = str_replace('http://'.$domain, 'https://'.$domain, $url);
+		$parts = parse_url($url);
+
+		// does this URL belong to us?
+		if (strpos($parts['host'], $domain, 1) > 1) {
+			// HTTPS
+			if (true === $config->link->https) {
+				$parts['scheme'] = 'https';
+			}
+
+			// drop subdomain
+			if (false === $config->link->www) {
+				$parts['host'] = $domain;
+			} elseif (true === $config->link->www) {
+				$parts['host'] = $host;
+			}
 		}
 
-		// no 'www'
-		if (!$config->link->www)  $url = str_replace($host, $domain, $url);
+		$url = '';
+		foreach (['scheme'=>'%s://', 'host'=>'%s', 'port'=>':%d', 'path'=>'%s', 'query'=>'?%s', 'fragment'=>'#%s'] as $part => $glue) {
+			if (isset($parts[$part])) {
+				$url .= sprintf($glue, $parts[$part]);
+			}
+		}
 
 		return $url;
 	}
@@ -204,6 +226,7 @@ class Item
 	 * @param string $string
 	 *
 	 * @return string
+	 * @see cleanUrl()
 	 */
 	protected function clean(string $string): string
 	{
