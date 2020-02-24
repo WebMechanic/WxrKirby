@@ -96,9 +96,9 @@ abstract class Content
 
 		// vanilla assignment
 		if (isset($this->{$prop})) {
-			$this->{$prop} = (string) $value;
+			$this->{$prop} = $value;
 		} else {
-			$this->content[$prop] = (string) $value;
+			$this->content[$prop] = $value;
 		}
 		return $this;
 	}
