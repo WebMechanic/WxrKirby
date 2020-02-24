@@ -195,8 +195,15 @@ class Item
 
 		$parts = parse_url($url);
 
+		// skip ftp, mailto, javascript, # etc.
+		if (!isset($parts['scheme'])) {
+			return $url;
+		} elseif ($parts['scheme'] !== 'http' || $parts['scheme'] !== 'https') {
+			return $url;
+		}
+
 		// does this URL belong to us?
-		if (strpos($parts['host'], $domain, 1) > 1) {
+		if (isset($parts['host']) && strpos($parts['host'], $domain, 1) > 1) {
 			// HTTPS
 			if (true === $config->link->https) {
 				$parts['scheme'] = 'https';
