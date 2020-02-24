@@ -141,6 +141,7 @@ class Post extends Item
 	 * @param DOMNode $elt
 	 *
 	 * @return Post
+	 * @see setAbstract()
 	 */
 	public function setContent(DOMNode $elt): Post
 	{
@@ -150,6 +151,14 @@ class Post extends Item
 				$this->extractInlineUrls($this->content_html);
 				$this->hints ^= static::PARSE_CONTENT;
 				$this->content = $this->htmlConvert($this->content_html);
+
+				if (isset($this->fields['abstract'])) {
+					$this->addField('abstract', $this->htmlConvert( $this->getField('abstract') ));
+				}
+				if (isset($this->fields['intro'])) {
+					$this->addField('intro', $this->htmlConvert($this->getField('intro')));
+				}
+
 			} else {
 				$this->content = $this->content_html;
 			}
@@ -183,7 +192,7 @@ class Post extends Item
 		return $this;
 	}
 
-	public function getExcerpt($original = true)
+	public function getExcerpt($original = true): string
 	{
 		if ($original) {
 			return $this->excerpt_html;
@@ -193,9 +202,9 @@ class Post extends Item
 
 	/**
 	 * @param DOMNode $desc
-	 * @return Item
+	 * @return Post
 	 */
-	public function setDescription(DOMNode $desc): Item
+	public function setDescription(DOMNode $desc): Post
 	{
 		if (!empty($desc->textContent)) {
 			$this->description = $desc->textContent;
@@ -203,6 +212,24 @@ class Post extends Item
 				$this->description = $this->htmlConvert($this->description);
 			}
 		}
+		return $this;
+	}
+
+	/**
+	 * Adds two extra content fields 'abstract', 'intro'. You can use parts
+	 * of $content[_html] or $excerpt to generate this text, i.e. within a
+	 * Transform.
+	 *
+	 * @param string $text
+	 * @return Post
+	 */
+	public function setAbstract(string $text): Post
+	{
+		if (!empty($text)) {
+			$this->addField('abstract', $text);
+			$this->addField('intro', $text);
+		}
+
 		return $this;
 	}
 
@@ -375,7 +402,7 @@ class Post extends Item
 		$doc = new \DOMDocument();
 		libxml_use_internal_errors(true);
 
-		$doc->loadHTML('<?xml encoding="UTF-8"><html>'. $html . '</html>');
+		$doc->loadHTML('<html>'. $html . '</html>');
 		$doc->normalize();
 
 		$body = $doc->documentElement->firstChild;
@@ -397,13 +424,15 @@ class Post extends Item
 				$this->hints ^= Post::HINT_IMG;
 				$data = 'images';
 				$this->collectAttributes($elms, 'src', $data);
+
+				/* @todo parse IMG srcset and store as Attachments */
 				if ($this->hasFlag(Post::HINT_SRCSET)) {
 					$this->collectAttributes($elms, 'srcset', $data);
 				}
 			}
 		}
 
-		/* @todo parse srcset and store as Attachments */
+		/* @todo parse SOURCE srcset and store as Attachments */
 		if ($this->hasFlag(Post::HINT_SRCSET)) {
 			/* @var \DOMNodeList */
 			$elms = $body->getElementsByTagName('source');
