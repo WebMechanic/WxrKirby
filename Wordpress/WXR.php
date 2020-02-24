@@ -28,6 +28,9 @@ class WXR
 	/** @var Converter */
 	private $converter;
 
+	/** @var Channel */
+	private $channel;
+
 	/**
 	 * Creates a DOMDocument from the $xmlPath.
 	 * To do the parsing and start the conversion once custom options are set
@@ -58,8 +61,9 @@ class WXR
 	public function parse(Converter $converter)
 	{
 		$this->converter = $converter;
-		$channel         = $this->document->getElementsByTagName('channel')->item(0);
-		$this->converter->setSite(new Channel($channel, $this));
+		$root            = $this->document->getElementsByTagName('channel')->item(0);
+		$this->channel   = new Channel($root, $this);
+		$this->converter->setSite($this->channel);
 
 		foreach ($this->document->getElementsByTagName('author') as $item) {
 			$this->converter->setAuthor($item);
@@ -84,6 +88,19 @@ class WXR
 	public function getConverter(): Converter
 	{
 		return $this->converter;
+	}
+
+	/**
+	 * @return Channel
+	 */
+	public function getChannel(): Channel
+	{
+		return $this->channel;
+	}
+	public function setChannel(Channel $channel): WXR
+	{
+		$this->channel = $channel;
+		return $this;
 	}
 
 	/**

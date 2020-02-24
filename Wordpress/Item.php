@@ -59,8 +59,11 @@ class Item
 	function parse(DOMNode $item)
 	{
 		$item->normalize();
+
 		foreach ($item->childNodes as $elt) {
-			if (XML_ELEMENT_NODE == $elt->nodeType) {
+			/* only deal with this if there's some element content.
+			 * Empty nodes or <![CDATA[]]> is not. */
+			if (XML_ELEMENT_NODE == $elt->nodeType && $elt->firstChild) {
 				$this->set($elt);
 			}
 		}
@@ -93,36 +96,31 @@ class Item
 			$prop = $elt->prefix;
 		}
 
-		/* only deal with this if there's some content.
-		 * Empty nodes or <![CDATA[]]> is not. */
-		if ($elt->firstChild) {
+		/* _wp_attached_file = attached_file, post_parent = parent, postmeta = meta */
+		$prop   = preg_replace('/^_wp_?/', '', $prop);
+		$prop   = preg_replace($this->prefixFilter, '', $prop);
+		$method = 'set' . ucwords($prop, '_');
+		$method = str_replace('_', '', $method);
 
-			/* _wp_attached_file = attached_file, post_parent = parent, postmeta = meta */
-			$prop   = preg_replace('/^_wp_?/', '', $prop);
-			$prop   = preg_replace($this->prefixFilter, '', $prop);
-			$method = 'set' . ucwords($prop, '_');
-			$method = str_replace('_', '', $method);
+		$transform = $this->transform($elt->nodeName);
+		$transform->apply($elt, $this);
 
-			$transform = $this->transform($elt->nodeName);
-			$transform->apply($elt, $this);
+		// element setter
+		if (method_exists($this, $method)) {
+			$this->$method($elt);
+			return $this;
+		}
 
-			// element setter
-			if (method_exists($this, $method)) {
-				$this->$method($elt);
+		// vanilla assignment
+		if (isset($this->{$prop})) {
+			$this->{$prop} = $elt->textContent;
+		} else {
+			$setter = 'set' . ucfirst($store);
+			if (method_exists($this, $setter)) {
+				$this->$setter($prop, $elt->textContent);
 				return $this;
 			}
-
-			// vanilla assignment
-			if (isset($this->{$prop})) {
-				$this->{$prop} = $elt->textContent;
-			} else {
-				$setter = 'set' . ucfirst($store);
-				if (method_exists($this, $setter)) {
-					$this->$setter($prop, $elt->textContent);
-					return $this;
-				}
-				$this->{$store}[$prop] = $elt->textContent;
-			}
+			$this->{$store}[$prop] = $elt->textContent;
 		}
 
 		return $this;
@@ -179,13 +177,23 @@ class Item
 	 */
 	public function cleanUrl(string $url): string
 	{
-		static $config = null;
-		if ($config === null) $config = (object) Converter::getOption('resolveUrls');
+		static $config = null, $host = null, $domain = null;
+		if ($config === null) {
+			$config = (object) Converter::getOption('resolveUrls');
+		}
+		if ($host === null) {
+			$host   = $this->channel()->host;
+			$domain = str_replace('www.', '', $host);
+		}
 
 		// HTTPS
-		if ($config->link->https) $url = str_replace('http:/', 'https:/', $url);
+		if ($config->link->https) {
+			$url = str_replace('http://'.$host, 'https://'.$host, $url);
+			$url = str_replace('http://'.$domain, 'https://'.$domain, $url);
+		}
+
 		// no 'www'
-		if (!$config->link->www)  $url = str_replace('://www.', '://', $url);
+		if (!$config->link->www)  $url = str_replace($host, $domain, $url);
 
 		return $url;
 	}
@@ -205,6 +213,11 @@ class Item
 	public function converter(): Converter
 	{
 		return $this->XML->getConverter();
+	}
+
+	public function channel(): Channel
+	{
+		return $this->XML->getChannel();
 	}
 
 	public function site(): Site

@@ -20,7 +20,10 @@ class Channel extends Item
 	 * @see $link
 	 * @var string incl. protocol
 	 */
-	protected $blogUrl;
+	protected $blogUrl = '';
+
+	/** @var string the Hostname from <channel><link> */
+	protected $host = '';
 
 	/**
 	 * Extract some elements of Wordpress <channel> for Kirby's site file.
@@ -35,10 +38,16 @@ class Channel extends Item
 	{
 		$channel->normalize();
 
+		/* we need a reference to this early on in helpers */
+		$this->XML->setChannel($this);
+
 		/** @var DOMElement $elt */
 		foreach ($channel->childNodes as $elt) {
-			if ($elt->nodeType !== XML_ELEMENT_NODE) continue;
-			if (empty($elt->textContent)) continue;
+			/* only deal with this if there's some element content.
+			 * Empty nodes or <![CDATA[]]> is not. */
+			if (XML_ELEMENT_NODE !== $elt->nodeType && !$elt->firstChild) {
+				continue;
+			}
 
 			switch ($elt->localName) {
 			case 'image':
@@ -84,4 +93,16 @@ class Channel extends Item
 		return $this;
 	}
 
+	/**
+	 * Extract the hostname from the link URL.
+	 *
+	 * @param DOMNode $link
+	 * @return Item
+	 */
+	public function setLink(DOMNode $link): Item
+	{
+		$parts = parse_url($link->textContent);
+		$this->host = $parts['host'];
+		return parent::setLink($link);
+	}
 }

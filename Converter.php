@@ -273,15 +273,15 @@ class Converter
 	/**
 	 * Assign a Site object to write information into `site.txt`.
 	 *
-	 * @param Channel $site
+	 * @param Channel $channel
 	 *
 	 * @return Converter
 	 */
-	public function setSite(Channel $site): Converter
+	public function setSite(Channel $channel): Converter
 	{
 		$this->site = new Site();
 		$this->site->set('ext',  static::getOption('extension', 'txt'));
-		$this->site->assign($site);
+		$this->site->assign($channel);
 
 		return $this;
 	}

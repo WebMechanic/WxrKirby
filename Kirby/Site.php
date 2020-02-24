@@ -32,6 +32,9 @@ class Site extends Content
 	/** @var string Website Title */
 	protected $title;
 
+	/** @var string Website Hostname */
+	protected $host = '';
+
 	/** @var array  blueprints per path/URL */
 	protected $blueprints = ['/' => 'default'];
 
@@ -51,6 +54,8 @@ class Site extends Content
 
 		$this->title  = $channel->title;
 		$this->url    = $channel->link;
+		$this->host   = $channel->host;
+
 		foreach ((array) $channel->fields as $key => $value) {
 			$method = 'set' . ucfirst("{$key}");
 			if (method_exists($this, $method)) {
