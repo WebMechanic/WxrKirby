@@ -65,6 +65,14 @@ class Page extends Content
 	}
 
 	/**
+	 * @return string  fully qualified content filepath for Kirby
+	 */
+	public function getContentFile(): string
+	{
+		return $this->getContentPath() . $this->filepath . $this->filename;
+	}
+
+	/**
 	 * Uses Transform\Meta to convert WP meta information into something
 	 * useful for a Kirby page.
 	 *
@@ -120,9 +128,10 @@ class Page extends Content
 		}
 
 		$props = [
-			'meta', 'fields', 'data',
+			'fields', 'data',
 			'date', 'status'
 		];
+		$this->meta = $post->meta;
 		foreach ($props as $prop) {
 			$method = 'set' . ucfirst("{$prop}");
 			foreach ((array) $post->{$prop} as $key => $value) {
@@ -140,36 +149,29 @@ class Page extends Content
 			$this->content[$prop] = $post->{$prop};
 		}
 
-		if ($post->hasFlag(Post::PARSE_CONTENT)) {
-			$markdown = $post->getContent();
-			$markdown = $post->cleanUrl($markdown);
-			echo "# {$post->id} Convert Content {$post->hints}",
-				' Link: ', $post->hasFlag(Post::HINT_LINK),
-				' Img: ', $post->hasFlag(Post::HINT_IMG), PHP_EOL;
-			// Markdown link '(http://www.azentro.de'
-		}
-
-		if ($post->hasFlag(Post::PARSE_EXCERPT)) {
-			echo "# {$post->id} Convert Excerpt  {$post->hints}",
-				' Link: ', $post->hasFlag(Post::HINT_LINK),
-				' Img: ', $post->hasFlag(Post::HINT_IMG), PHP_EOL;
-		}
-
+		/* @todo save as .html backup */
 //		$props = ['content_html', 'excerpt_html'];
 
 		return $this;
 	}
 
 	/**
-	 * @todo use Kirby\Cms\File::create() and Kirby\Toolkit\F
+	 * @todo use \Kirby\Cms\File::create() and \Kirby\Toolkit\F
 	 */
 	public function writeOutput()
 	{
-		$felder = implode(',', array_keys($this->content));
+		/** @var Author */
+		$creator = $this->content['creator'];
+		$meta    = @implode(', ', $this->meta);
+		$felder  = @implode(', ', array_keys($this->content));
+
 		//	$subtitle = $post->getField('Subtitle');
 		echo <<<LOG
-Page: {$this->id} {$this->link} | {$this->filename}
-      {$felder}
+Page: {$this->id} ({$this->parent}) {$this->link} {$this->date} 
+    | {$this->getContentFile()}
+    F {$felder}
+    M {$meta}
+    C {$creator->getFullName()} <{$creator->email}> ({$creator->username}) 
 
 LOG;
 	}
