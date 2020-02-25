@@ -125,6 +125,7 @@ class Author extends Content
 		return $this;
 	}
 
+	public function getFirstName(): string { return $this->user['firstName']; }
 	/**
 	 * @param string $lastName
 	 * @return Author
@@ -137,6 +138,8 @@ class Author extends Content
 		return $this;
 	}
 
+	public function getLastName(): string { return $this->user['lastName']; }
+
 	/**
 	 * Concatenate $user['fullName'] from 'firstName' + 'lastName'.
 	 *
@@ -146,6 +149,7 @@ class Author extends Content
 	{
 		$this->user['fullName'] = $this->user['firstName'] . ' ' . $this->user['lastName'];
 	}
+	public function getFullName(): string { return $this->user['fullName']; }
 
 	/**
 	 * stub to satisfy Content interface.
