@@ -49,9 +49,6 @@ class Author extends Content
 	/** @var array  Account data (user.txt) */
 	protected $user = ['firstName' => null, 'lastName' => null, 'fullName' => null];
 
-	/** @var array normalize all wp:author_xyz element names */
-	protected $prefixFilter = '/^(author)_?/';
-
 	/**
 	 * @return int
 	 */
@@ -121,11 +118,11 @@ class Author extends Content
 	public function setFirstName(string $firstName): Author
 	{
 		$this->user['firstName'] = $firstName;
-		$this->setFullName();
-		return $this;
+		return $this->setFullName();
 	}
 
 	public function getFirstName(): string { return $this->user['firstName']; }
+
 	/**
 	 * @param string $lastName
 	 * @return Author
@@ -134,8 +131,7 @@ class Author extends Content
 	public function setLastName(string $lastName): Author
 	{
 		$this->user['lastName'] = $lastName;
-		$this->setFullName();
-		return $this;
+		return $this->setFullName();
 	}
 
 	public function getLastName(): string { return $this->user['lastName']; }
@@ -145,10 +141,12 @@ class Author extends Content
 	 *
 	 * @see setFirstName(), setLastName()
 	 */
-	public function setFullName(): void
+	public function setFullName(): Author
 	{
 		$this->user['fullName'] = $this->user['firstName'] . ' ' . $this->user['lastName'];
+		return $this;
 	}
+
 	public function getFullName(): string { return $this->user['fullName']; }
 
 	/**

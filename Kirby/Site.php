@@ -38,6 +38,9 @@ class Site extends Content
 	/** @var string previous WP Blog URL */
 	protected $blog = '';
 
+	/** @var string original WP URL of the item */
+	protected $url = '';
+
 	/** @var array  blueprints per path/URL */
 	protected $blueprints = ['/' => 'default'];
 

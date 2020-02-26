@@ -30,9 +30,6 @@ abstract class Content
 	/** @var string file extension; updated at runtime */
 	private $ext = '.txt';
 
-	/** @var string original WP URL of the item */
-	private $url = '';
-
 	/** @var string link element value of the WP <item> or <channel> */
 	protected $link = '';
 
@@ -83,6 +80,11 @@ abstract class Content
 	{
 		if (empty($value)) {
 			return $this;
+		}
+
+		if (empty(trim($this->prefixFilter, '/'))) {
+			$f = explode('\\', strtolower(get_class($this)));
+			$this->prefixFilter = '/^('. array_pop($f) .')_?/';
 		}
 
 		// turn author_id > id, post_parent > parent etc.
@@ -154,13 +156,22 @@ abstract class Content
 		return $this->contentPath;
 	}
 
-	public function setContent(string $fieldname, string $value): Content
+	/**
+	 * Sets a content field that will also appear in the output file.
+	 *
+	 * @param string       $fieldname
+	 * @param string|array $value
+	 * @return Content
+	 */
+	public function setContent(string $fieldname, $value): Content
 	{
 		$this->content[$fieldname] = $value;
 		return $this;
 	}
 
 	/**
+	 * Gets one of all fields from the $content array.
+	 *
 	 * @param string $fieldname a content field or NULL for the whole thing
 	 * @return string|array
 	 */

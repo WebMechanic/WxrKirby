@@ -23,7 +23,7 @@ class Attachment extends Post
 	 *
 	 * @var string wp:attachment_url
 	 */
-	public $url = '';
+	protected $url = '';
 
 	/** @var array preg_replace node name prefixes to simplify setters */
 	protected $prefixFilter = '/^(post|page|attachment)_?/';
@@ -44,7 +44,7 @@ class Attachment extends Post
 	public function setUrl(DOMNode $elt): Attachment
 	{
 		$url       = $this->cleanUrl($elt->textContent);
-		$this->url = str_replace($this->site()->url, '', $url);
+		$this->url = str_replace($this->site()->getUrl(), '', $url);
 		return $this;
 	}
 
