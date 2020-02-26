@@ -50,7 +50,7 @@ class Author extends Content
 	protected $user = ['firstName' => null, 'lastName' => null, 'fullName' => null];
 
 	/** @var array normalize all wp:author_xyz element names */
-	protected $prefixFilter = '/^author_?/';
+	protected $prefixFilter = '/^(author)_?/';
 
 	/**
 	 * @return int
