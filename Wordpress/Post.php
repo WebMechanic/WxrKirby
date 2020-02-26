@@ -31,8 +31,8 @@ class Post extends Item
 	protected $excerpt = '';
 	protected $excerpt_html = '';
 
-	/** @var string GMT date string wp:post_date_gmt */
-	protected $date = '';
+	/** @var string GMT ISO date <wp:post_date_gmt> */
+	protected $created = '';
 	/** @var string wp:post_name */
 	protected $name = '';
 
@@ -234,18 +234,40 @@ class Post extends Item
 	}
 
 	/**
-	 * The GMT date is used as the publishing date in Kirby.
-	 * It is also used to "touch" the generated Kirby file.
+	 * The GMT date is used as the 'created' date in Kirby unless it's Zero
+	 * in which case the `<wp:post_date>` is used. Note that the timestamps
+	 * among <item>s will be off if GMT and date will be mixed.
+	 * This may only affect plugin entries.
 	 *
-	 * @param DOMNode $elt
+	 * @param DOMNode $gmtDate
 	 *
 	 * @return Post
 	 */
-	public function setDateGmt(DOMNode $elt): Post
+	public function setDateGmt(DOMNode $gmtDate): Post
 	{
-		$this->date = $elt->textContent;
+		if (strtotime($gmtDate->textContent) <= 0) {
+			return $this;
+		}
+
+		$this->created = $gmtDate->textContent;
 		unset($this->fields['pubDate']);
 		unset($this->fields['date']);
+		return $this;
+	}
+
+	/**
+	 * Sets the 'created' property "as is" and does not account for timezone
+	 * differences, however setDateGmt() will override if it contains a date.
+	 *
+	 * @param DOMNode $isoDate
+	 * @return Post
+	 * @see setDateGmt()
+	 */
+	public function setDate(DOMNode $isoDate): Post
+	{
+		if (!$this->created) {
+			$this->created = $isoDate->textContent;
+		}
 		return $this;
 	}
 
