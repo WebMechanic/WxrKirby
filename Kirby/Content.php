@@ -22,16 +22,16 @@ use Kirby\Toolkit\F;
 abstract class Content
 {
 	/** @var string Kirby content folder; updated at runtime */
-	protected $contentPath = '/content/';
+	private $contentPath = '/content/';
 	/** @var string relative path in $contentPath of this file */
-	protected $filepath = '';
+	private $filepath = '';
 	/** @var string this file's base filename */
-	protected $filename = 'default';
+	private $filename = 'default';
 	/** @var string file extension; updated at runtime */
-	protected $ext = '.txt';
+	private $ext = '.txt';
 
 	/** @var string original WP URL of the item */
-	protected $url = '';
+	private $url = '';
 
 	/** @var string link element value of the WP <item> or <channel> */
 	protected $link = '';
@@ -40,10 +40,10 @@ abstract class Content
 	protected $parent = 0;
 
 	/** @var array */
-	protected $content = [];
+	private $content = [];
 
 	/** @var array preg_replace to normalize element name prefixes */
-	protected $prefixFilter = '//';
+	private $prefixFilter = '//';
 
 	/**
 	 * Override in subclasses.
@@ -86,8 +86,8 @@ abstract class Content
 		}
 
 		// turn author_id > id, post_parent > parent etc.
-		$method = preg_replace($this->prefixFilter, '', $prop);
-		$method = 'set' . ucwords($method, '_');
+		$prop   = preg_replace($this->prefixFilter, '', $prop);
+		$method = 'set' . ucwords($prop, '_');
 		$method = str_replace('_', '', $method);
 
 		if (method_exists($this, $method)) {
@@ -154,12 +154,21 @@ abstract class Content
 		return $this->contentPath;
 	}
 
-	/**
-	 * @param string $fieldname a content field
-	 * @return string
-	 */
-	public function getContent(string $fieldname): string
+	public function setContent(string $fieldname, string $value): Content
 	{
+		$this->content[$fieldname] = $value;
+		return $this;
+	}
+
+	/**
+	 * @param string $fieldname a content field or NULL for the whole thing
+	 * @return string|array
+	 */
+	public function getContent(string $fieldname = null)
+	{
+		if ($fieldname === null) {
+			return $this->content;
+		}
 		return isset($this->content[$fieldname]) ? $this->content[$fieldname] : '';
 	}
 
