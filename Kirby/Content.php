@@ -160,12 +160,16 @@ abstract class Content
 	 * Sets a content field that will also appear in the output file.
 	 *
 	 * @param string       $fieldname
-	 * @param string|array $value
+	 * @param string|array $value  if NULL removes the content entry
 	 * @return Content
 	 */
 	public function setContent(string $fieldname, $value): Content
 	{
-		$this->content[$fieldname] = $value;
+		if (null === $value) {
+			unset($this->content[$fieldname]);
+		} else {
+			$this->content[$fieldname] = $value;
+		}
 		return $this;
 	}
 
