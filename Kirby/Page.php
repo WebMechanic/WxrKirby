@@ -36,6 +36,11 @@ class Page extends Content
 	protected $blueprint = 'default';
 	protected $filename = 'default.txt';
 
+	protected $created = '';
+
+	/** @var int file handle */
+	protected $fh;
+
 	/**
 	 * @var array A collection of Wordpress_Meta to do smart things with.
 	 */
@@ -98,7 +103,7 @@ class Page extends Content
 	 */
 	public function assign($post): Page
 	{
-		$this->ext = Converter::getOption('extension', '.txt');
+		$this->set('ext', Converter::getOption('extension', '.txt'));
 
 		$props = [
 			'id', 'title', 'link', 'parent',
@@ -138,7 +143,7 @@ class Page extends Content
 				if (method_exists($this, $method)) {
 					$this->$method($key, $value);
 				} else {
-					$this->content[$key] = $value;
+					$this->setContent($key, $value);
 				}
 			}
 		}
@@ -146,7 +151,7 @@ class Page extends Content
 		# hints
 		$props = ['content', 'excerpt', 'description'];
 		foreach ($props as $prop) {
-			$this->content[$prop] = $post->{$prop};
+			$this->setContent($prop, $post->{$prop});
 		}
 
 		/* @todo save as .html backup */

@@ -53,10 +53,9 @@ class Site extends Content
 	 */
 	public function assign($channel): Site
 	{
-		$this->ext = Converter::getOption('extension', '.txt');
-
+		$this->set('ext', Converter::getOption('extension', '.txt'));
+		$this->set('url', $channel->link);
 		$this->title  = $channel->title;
-		$this->url    = $channel->link;
 		$this->host   = $channel->host;
 		$this->blog   = $channel->blogUrl;
 
@@ -65,7 +64,7 @@ class Site extends Content
 			if (method_exists($this, $method)) {
 				$this->$method($key, $value);
 			} else {
-				$this->content[$key] = $value;
+				$this->setContent($key, $value);
 			}
 		}
 
@@ -87,7 +86,7 @@ Link: {$this->link}
 
 OUT;
 
-		foreach ($this->content as $field => $data) {
+		foreach ($this->getContent() as $field => $data) {
 			if (is_array($data)) {
 				$data = $data[0];
 			}

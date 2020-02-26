@@ -159,7 +159,7 @@ class Author extends Content
 	 */
 	public function assign($author): Author
 	{
-		$this->ext = Converter::getOption('extension', '.txt');
+		$this->set('ext', Converter::getOption('extension', '.txt'));
 		return $this;
 	}
 
