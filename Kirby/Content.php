@@ -22,13 +22,13 @@ use Kirby\Toolkit\F;
 abstract class Content
 {
 	/** @var string Kirby content folder; updated at runtime */
-	private $contentPath = '/content/';
+	protected $contentPath = '/content/';
 	/** @var string relative path in $contentPath of this file */
-	private $filepath = '';
+	protected $filepath = '';
 	/** @var string this file's base filename */
-	private $filename = 'default';
+	protected $filename = 'default';
 	/** @var string file extension; updated at runtime */
-	private $ext = '.txt';
+	protected $ext = '.txt';
 
 	/** @var string link element value of the WP <item> or <channel> */
 	protected $link = '';
@@ -37,10 +37,10 @@ abstract class Content
 	protected $parent = 0;
 
 	/** @var array */
-	private $content = [];
+	protected $content = [];
 
 	/** @var array preg_replace to normalize element name prefixes */
-	private $prefixFilter = '//';
+	protected $prefixFilter = '//';
 
 	/**
 	 * Override in subclasses.
