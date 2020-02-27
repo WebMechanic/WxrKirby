@@ -105,6 +105,13 @@ abstract class Content
 		return $this;
 	}
 
+	/**
+	 * Gets an object property if set or delegates to getContent().
+	 *
+	 * @param $name
+	 * @return array|string|Content
+	 * @uses getContent()
+	 */
 	public function __get($name)
 	{
 		$method = 'get' . ucfirst($name);
@@ -112,7 +119,7 @@ abstract class Content
 			return $this->$method();
 		}
 
-		return (isset($this->{$name})) ? $this->{$name} : null;
+		return (isset($this->{$name})) ? $this->{$name} : $this->getContent($name);
 	}
 
 	/**

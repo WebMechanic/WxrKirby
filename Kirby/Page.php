@@ -216,12 +216,11 @@ class Page extends Content
 			return;
 		}
 
-		echo "Write Page: ", $this->getContentFile(), PHP_EOL;
+		echo "Write: ", $this->title, PHP_EOL,"       ", $this->getContentFile(), PHP_EOL;
 		if ($this->debug) {
 			echo 'P ', $contentPath, PHP_EOL,
 				'F ', $this->filename, PHP_EOL,
 			PHP_EOL;
-			return;
 		} else {
 			$this->fh = fopen($this->getContentFile(), "w+b");
 		}
@@ -256,12 +255,13 @@ class Page extends Content
 		}
 
 		$nl   = strlen($value) > 64 ? "\n" : ' ';
-		$line = sprintf("%s :{$nl}%s\n----\n", ucfirst($fieldname), $value);
+		$line = sprintf("%s :{$nl}%s\n\n----\n\n", ucfirst($fieldname), $value);
 
-		if ($this->debug)
+		if ($this->debug) {
 			echo $line;
-		else
+		} else {
 			fwrite($this->fh, $line);
+		}
 	}
 
 	public function dump()
