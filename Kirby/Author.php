@@ -154,6 +154,7 @@ class Author extends Content
 	 *
 	 * @param Item $author
 	 * @return Author
+	 * @uses Converter::$options
 	 */
 	public function assign($author): Author
 	{

@@ -53,6 +53,7 @@ class Site extends Content
 	/**
 	 * @param Channel $channel
 	 * @return mixed|void
+	 * @uses Converter::$options
 	 */
 	public function assign($channel): Site
 	{

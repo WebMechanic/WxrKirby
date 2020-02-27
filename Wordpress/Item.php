@@ -174,6 +174,7 @@ class Item
 	 *
 	 * @param string $url
 	 * @return string
+	 * @uses Converter::$options
 	 * @var array $config   how to resolveUrls'
 	 * @var string $host    the Site host incl. subdomain
 	 * @var string $domain  the Site host excl. subdomain
@@ -295,7 +296,6 @@ class Item
 	 */
 	public function addField(string $fieldname, string $value): Item
 	{
-		$fieldname                = $fieldname;
 		$this->fields[$fieldname] = $value;
 
 		return $this;

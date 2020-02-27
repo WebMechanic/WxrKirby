@@ -109,8 +109,8 @@ class WXR
 	 * @param DOMElement $item
 	 *
 	 * @return WXR
-	 * @uses \WebMechanic\Converter\Kirby\Page
-	 * @uses \WebMechanic\Converter\Kirby\Attachment
+	 * @uses Converter::$options
+	 * @uses Page, Attachment
 	 */
 	protected function parseItem(DOMElement $item): WXR
 	{

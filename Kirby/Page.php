@@ -45,7 +45,7 @@ class Page extends Content
 	 */
 	protected $meta = [];
 
-	/** @var int file handle */
+	/** @var resource file handle */
 	private $fh = null;
 	/** @var boolean */
 	private $debug = false;
@@ -57,6 +57,7 @@ class Page extends Content
 	 * @param string $blueprint
 	 *
 	 * @return Page
+	 * @uses Converter::$options
 	 */
 	public function setBlueprint(string $blueprint): Page
 	{
@@ -138,6 +139,7 @@ class Page extends Content
 	 *
 	 * @param Post $post
 	 * @return Page
+	 * @uses Converter::$options
 	 * @todo Convert inline LINK in Post::content, excerpt, description
 	 * @todo Convert inline IMG in Post::content, excerpt, description
 	 */
@@ -201,6 +203,7 @@ class Page extends Content
 	}
 
 	/**
+	 * @uses Converter::$options
 	 * @todo use \Kirby\Cms\File::create() and \Kirby\Toolkit\F
 	 */
 	public function writeOutput()
@@ -223,7 +226,7 @@ class Page extends Content
 			$this->fh = fopen($this->getContentFile(), "w+b");
 		}
 
-		/** @var Author */
+		/** @var Author $creator */
 		$creator = $this->getContent('creator');
 
 		$this->setContent('creator', null);
@@ -263,7 +266,7 @@ class Page extends Content
 
 	public function dump()
 	{
-		/** @var Author */
+		/** @var Author $creator */
 		$creator = $this->getContent('creator');
 		$meta    = @implode(', ', $this->meta);
 		$fields  = @implode(', ', array_keys($this->getContent()));

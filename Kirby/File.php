@@ -20,6 +20,7 @@ class File extends Content
 	 *
 	 * @param mixed $item some Item
 	 * @return File
+	 * @uses Converter::$options
 	 */
 	public function assign($item): File
 	{

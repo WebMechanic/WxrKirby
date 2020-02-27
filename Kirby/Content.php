@@ -39,7 +39,7 @@ abstract class Content
 	/** @var array */
 	protected $content = [];
 
-	/** @var array preg_replace to normalize element name prefixes */
+	/** @var string preg_replace to normalize element name prefixes */
 	protected $prefixFilter = '//';
 
 	/**
@@ -145,9 +145,12 @@ abstract class Content
 	}
 
 	/**
-	 * @param string $folder on of kirby, content, site, assets
+	 * Returns the fully qualified path to one of Kirby's content folders
+	 * as of $options['paths'].
+	 *
+	 * @param string $folder  one of kirby, content, site, assets
 	 * @return string
-	 * @see Converter::$options
+	 * @uses Converter::$options
 	 */
 	public function getContentPath($folder = 'content'): string
 	{
@@ -177,7 +180,7 @@ abstract class Content
 	 * Gets one of all fields from the $content array.
 	 *
 	 * @param string $fieldname a content field or NULL for the whole thing
-	 * @return string|array
+	 * @return string|array|Content
 	 */
 	public function getContent(string $fieldname = null)
 	{
