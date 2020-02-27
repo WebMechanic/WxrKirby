@@ -257,7 +257,7 @@ class Page extends Content
 
 		if (!$this->debug) fclose($this->fh);
 
-		$this->writeHtmlOutput();
+//		$this->writeHtmlOutput();
 	}
 
 	public function writeHtmlOutput()
