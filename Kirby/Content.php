@@ -12,9 +12,6 @@ namespace WebMechanic\Converter\Kirby;
 use DOMNode;
 use WebMechanic\Converter\Converter;
 
-use Kirby\Cms\File;
-use Kirby\Toolkit\F;
-
 /**
  * Transform a Wordpress content <item> into a Kirby content Site, File,
  * Page or Author.

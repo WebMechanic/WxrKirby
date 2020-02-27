@@ -28,6 +28,9 @@ namespace WebMechanic\Converter\Kirby;
 use WebMechanic\Converter\Converter;
 use WebMechanic\Converter\Wordpress\Post;
 
+//use Kirby\Cms\File;
+//use Kirby\Toolkit\F;
+
 class Page extends Content
 {
 	protected $id = 0;
@@ -44,6 +47,9 @@ class Page extends Content
 	 * @var array A collection of Wordpress_Meta to do smart things with.
 	 */
 	protected $meta = [];
+
+	/** @var array the original HTML markup */
+	private $html = ['content' => null, 'excerpt' => null];
 
 	/** @var resource file handle */
 	private $fh = null;
@@ -146,12 +152,14 @@ class Page extends Content
 	public function assign($post): Page
 	{
 		$this->set('ext', Converter::getOption('extension', '.txt'));
+		$this->debug = Converter::getOption('debug', false);
 
 		$props = [
 			'id', 'title', 'link', 'parent',
 			'name', 'filepath',
 			'creator', /* Author */
 			'blueprint' => 'template',
+			'date', 'status'
 		];
 		foreach ($props as $method => $prop) {
 			if (is_string($method)) {
@@ -161,6 +169,24 @@ class Page extends Content
 				$this->$method($post->{$prop});
 			} else {
 				$this->set($prop, $post->{$prop});
+			}
+		}
+
+		/* @todo use 'text' option for 'content' fieldname */
+		$props = ['content', 'excerpt', 'description'];
+		foreach ($props as $prop) {
+			$this->setContent($prop, $post->{$prop});
+		}
+
+		$props = ['fields', 'data'];
+		foreach ($props as $prop) {
+			$method = 'set' . ucfirst("{$prop}");
+			foreach ((array) $post->{$prop} as $key => $value) {
+				if (method_exists($this, $method)) {
+					$this->$method($key, $value);
+				} else {
+					$this->setContent($key, $value);
+				}
 			}
 		}
 
@@ -174,42 +200,29 @@ class Page extends Content
 			}
 		}
 
-		$props = [
-			'fields', 'data',
-			'date', 'status'
-		];
 		$this->meta = $post->meta;
-		foreach ($props as $prop) {
-			$method = 'set' . ucfirst("{$prop}");
-			foreach ((array) $post->{$prop} as $key => $value) {
-				if (method_exists($this, $method)) {
-					$this->$method($key, $value);
-				} else {
-					$this->setContent($key, $value);
-				}
-			}
-		}
-
-		# hints
-		$props = ['content', 'excerpt', 'description'];
-		foreach ($props as $prop) {
-			$this->setContent($prop, $post->{$prop});
-		}
 
 		/* @todo save as .html backup */
 //		$props = ['content_html', 'excerpt_html'];
+
+		/* optionally written in writeHtmlOutput() */
+		if (Converter::getOption('write_html', false)) {
+			$this->html = [
+				'content' => $post->content_html,
+				'excerpt' => $post->excerpt_html,
+			];
+		}
 
 		return $this;
 	}
 
 	/**
 	 * @uses Converter::$options
+	 * @uses writeHtmlOutput()
 	 * @todo use \Kirby\Cms\File::create() and \Kirby\Toolkit\F
 	 */
 	public function writeOutput()
 	{
-		$this->debug = Converter::getOption('debug', false);
-
 		try {
 			$contentPath = $this->createContentPath($this->filepath);
 		} catch (\RuntimeException $e) {
@@ -243,6 +256,25 @@ class Page extends Content
 		}
 
 		if (!$this->debug) fclose($this->fh);
+
+		$this->writeHtmlOutput();
+	}
+
+	public function writeHtmlOutput()
+	{
+		$filePath = $this->getContentPath() . $this->filepath;
+
+		$content = $this->html['content'];
+		if (strlen($content)) {
+			if ($this->debug) echo "- Write: {$filePath}content.html \n";
+			file_put_contents("{$filePath}content.html", $content);
+		}
+
+		$excerpt = $this->html['excerpt'];
+		if (strlen($excerpt)) {
+			if ($this->debug) echo "- Write: {$filePath}excerpt.html \n";
+			file_put_contents("{$filePath}excerpt.html", $excerpt);
+		}
 	}
 
 	private function write($fieldname, $value)
