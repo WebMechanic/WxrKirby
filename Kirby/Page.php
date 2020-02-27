@@ -36,18 +36,23 @@ class Page extends Content
 	protected $blueprint = 'default';
 	protected $filename = 'default.txt';
 
-	protected $created = '';
+	protected $slug = '';
 
-	/** @var int file handle */
-	protected $fh;
+	protected $created = '';
 
 	/**
 	 * @var array A collection of Wordpress_Meta to do smart things with.
 	 */
 	protected $meta = [];
 
+	/** @var int file handle */
+	private $fh = null;
+	/** @var boolean */
+	private $debug = false;
+
 	/**
 	 * Sets the $blueprint to be used for this page.
+	 * Checks against $options['blueprints'] for file mappings of WP templates.
 	 *
 	 * @param string $blueprint
 	 *
@@ -55,12 +60,22 @@ class Page extends Content
 	 */
 	public function setBlueprint(string $blueprint): Page
 	{
+		static $blueprints = null;
+		if ($blueprints === null) {
+			$blueprints = Converter::getOption('blueprints');
+		}
+		if (isset($blueprints[$blueprint])) {
+			$blueprint = $blueprints[$blueprint];
+		}
+
 		$this->blueprint = $blueprint;
 		$this->filename  = $blueprint . $this->ext;
 		return $this;
 	}
 
 	/**
+	 * Returns the fully qualified content path for Kirby. Does not check
+	 * if the path actually exists.
 	 * @param string $folder
 	 * @return string
 	 */
@@ -70,7 +85,26 @@ class Page extends Content
 	}
 
 	/**
-	 * @return string  fully qualified content filepath for Kirby
+	 * @param $subfolders
+	 * @return string
+	 * @throws \RuntimeException "Error creating content path"
+	 */
+	public function createContentPath($subfolders): string
+	{
+		$contentPath = $this->getContentPath() . $subfolders;
+		@mkdir($contentPath, 0750, true);
+		$contentPath = realpath($contentPath);
+		if (!is_dir($contentPath)) {
+			throw new \RuntimeException('Error creating content path ['. $this->getContentPath() . $subfolders .']');
+		}
+
+		return $contentPath;
+	}
+
+	/**
+	 * Returns the fully qualified content filepath for Kirby. Does not check
+	 * if the file actually exists.
+	 * @return string
 	 */
 	public function getContentFile(): string
 	{
@@ -89,6 +123,12 @@ class Page extends Content
 	public function setMeta(string $key, $value): Page
 	{
 		$this->meta[$key] = $value;
+		return $this;
+	}
+
+	public function setName(string $name): Page
+	{
+		$this->slug = $name;
 		return $this;
 	}
 
@@ -165,16 +205,74 @@ class Page extends Content
 	 */
 	public function writeOutput()
 	{
+		$this->debug = Converter::getOption('debug', false);
+
+		try {
+			$contentPath = $this->createContentPath($this->filepath);
+		} catch (\RuntimeException $e) {
+			return;
+		}
+
+		echo "Write Page: ", $this->getContentFile(), PHP_EOL;
+		if ($this->debug) {
+			echo 'P ', $contentPath, PHP_EOL,
+				'F ', $this->filename, PHP_EOL,
+			PHP_EOL;
+			return;
+		} else {
+			$this->fh = fopen($this->getContentFile(), "w+b");
+		}
+
 		/** @var Author */
-		$creator = $this->content['creator'];
+		$creator = $this->getContent('creator');
+
+		$this->setContent('creator', null);
+		$this->setContent('guid', null);
+
+		foreach ($this->getContent() as $fieldname => $value) {
+			$this->write($fieldname, $value);
+		}
+
+		$this->write('creator', $creator->getFullName());
+
+		$props = ['creator', 'tags', 'categories', 'link', 'id'];
+		foreach ($props as $prop) {
+			$this->write($prop, $this->$prop);
+		}
+
+		if (!$this->debug) fclose($this->fh);
+	}
+
+	private function write($fieldname, $value)
+	{
+		if (empty($value)) {
+			return;
+		}
+		if (is_array($value)) {
+			$value = @implode(', ', $value);
+		}
+
+		$nl   = strlen($value) > 64 ? "\n" : ' ';
+		$line = sprintf("%s :{$nl}%s\n----\n", ucfirst($fieldname), $value);
+
+		if ($this->debug)
+			echo $line;
+		else
+			fwrite($this->fh, $line);
+	}
+
+	public function dump()
+	{
+		/** @var Author */
+		$creator = $this->getContent('creator');
 		$meta    = @implode(', ', $this->meta);
-		$felder  = @implode(', ', array_keys($this->content));
+		$fields  = @implode(', ', array_keys($this->getContent()));
 
 		//	$subtitle = $post->getField('Subtitle');
 		echo <<<LOG
-Page: {$this->id} ({$this->parent}) {$this->link} {$this->date} 
+Page: {$this->id} ({$this->parent}) {$this->link} {$this->created} 
     | {$this->getContentFile()}
-    F {$felder}
+    F {$fields}
     M {$meta}
     C {$creator->getFullName()} <{$creator->email}> ({$creator->username}) 
 

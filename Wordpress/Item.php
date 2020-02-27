@@ -295,7 +295,7 @@ class Item
 	 */
 	public function addField(string $fieldname, string $value): Item
 	{
-		$fieldname                = ucfirst($fieldname);
+		$fieldname                = $fieldname;
 		$this->fields[$fieldname] = $value;
 
 		return $this;
@@ -323,7 +323,6 @@ class Item
 	 */
 	public function getField(string $fieldname): string
 	{
-		$fieldname = ucfirst($fieldname);
 		return isset($this->fields[$fieldname]) ? $this->fields[$fieldname] : '';
 	}
 
