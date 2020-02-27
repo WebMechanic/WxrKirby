@@ -104,6 +104,10 @@ class Converter
 			'site' => null,
 		],
 
+		/* a list of WP templates mapped to Kirby blueprints */
+		'blueprints' => [
+		],
+
 		/** [WIP] Concept: how to handle self-referring URLs. @see Item::cleanUrl()
 			This affects XML element values like <link> and HTML markup inserted into content such as <a>, <img>, <source>.
 			- strip: true|false, remove protocol and domain from URLs (overrides www, https)

@@ -89,18 +89,6 @@ Link: {$this->link}
 
 OUT;
 
-		foreach ($this->getContent() as $field => $data) {
-			if (is_array($data)) {
-				$data = $data[0];
-			}
-			$field   = ucfirst($field);
-			$content .= <<<OUT
-{$field}: {$data}
-----
-
-OUT;
-
-		}
 		echo $this->filepath, PHP_EOL,
 		$content, PHP_EOL
 		, PHP_EOL;
