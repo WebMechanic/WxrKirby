@@ -87,7 +87,7 @@ class Attachment extends Post
 	}
 
 	/**
-	 * unserialize array in CDATA $value
+	 * unserialised array in CDATA $value
 	 * - width
 	 * - height
 	 * - file

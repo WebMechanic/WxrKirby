@@ -224,7 +224,7 @@ class Converter
 	}
 
 	/**
-	 * Extend this method in your subclass to customize Kirby settings
+	 * Extend this method in your subclass to customise Kirby settings
 	 * like target paths and Transform filters for some RSS values PRIOR
 	 * calling this one with `parent::convert();`
 	 *

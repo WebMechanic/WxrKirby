@@ -16,7 +16,7 @@ use WebMechanic\Converter\Wordpress\Item;
  * Transform mappings of wp:postmeta fields into specific content fields
  * of various output files. Defaults to writing to the generated page.
  *
- * Allow for customization of WP plugin meta fields (ie galleries) into
+ * Allow for customisation of WP plugin meta fields (ie galleries) into
  * something a Kirby instance might make use of.
  *
  * @see Transform
@@ -35,12 +35,12 @@ class Meta extends Transform
 	 * but some more complex rules.
 	 *
 	 * Known meta_key:
-	 * - _wp_page_template      may become a blueprint filename in Kirby
-	 * - _wp_attached_file      relative  file path
-	 * - _wp_attachment_metadata    serialized array with image meta data
-	 * - _edit_last             edit history count?
-	 * - seo_follow             false|true ~ rel follow|nofollow
-	 * - seo_noindex            false|true ~ rel index|noindex
+	 * - _wp_page_template          may become a blueprint filename in Kirby
+	 * - _wp_attached_file          relative  file path
+	 * - _wp_attachment_metadata    serialised array with image meta data
+	 * - _edit_last                 edit history count?
+	 * - seo_follow                 false|true ~ rel follow|nofollow
+	 * - seo_noindex                false|true ~ rel index|noindex
 	 * - "Custom Fieldname"
 	 *
 	 * @param DOMNode   $node

@@ -325,7 +325,7 @@ class Post extends Item
 	 * - seo_noindex        false|true
 	 * - "Custom Fieldname" @see Meta
 	 * - @see Attachment::setAttachedFile()  relative file path
-	 * - @see Attachment::setMetadata()  serialized array with image meta data
+	 * - @see Attachment::setMetadata()  serialised array with image meta data
 	 *
 	 * @param DOMNode $elt
 	 *
@@ -347,8 +347,8 @@ class Post extends Item
 			break;
 
 		case '_wp_attached_file':
-		case '_wp_attachment_metadata': # deserialize
-		case '_wp_attachment_backup_sizes': # deserialize
+		case '_wp_attachment_metadata': # serialised
+		case '_wp_attachment_backup_sizes': # serialised
 			$node = new DOMElement($key, $value);
 			$this->set($node, 'meta');
 			break;
