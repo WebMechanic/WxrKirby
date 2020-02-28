@@ -199,7 +199,7 @@ class Item
 		// skip ftp, mailto, javascript, # etc.
 		if (!isset($parts['scheme'])) {
 			return $url;
-		} elseif ($parts['scheme'] !== 'http' || $parts['scheme'] !== 'https') {
+		} elseif ($parts['scheme'] !== 'http' && $parts['scheme'] !== 'https') {
 			return $url;
 		}
 
