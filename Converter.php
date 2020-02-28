@@ -98,8 +98,8 @@ class Converter
 	 * @see getOption()
 	 */
 	protected static $options = [
-		'title' => 'Title',
-		'text' => 'Text',
+		'title' => 'title',
+		'text' => 'text',
 
 		// that's where the output goes. Kirby App config may override
 		'paths' => [
@@ -303,7 +303,6 @@ class Converter
 	public function setSite(Channel $channel): Converter
 	{
 		$this->site = new Site();
-		$this->site->set('ext',  static::getOption('extension', 'txt'));
 		$this->site->assign($channel);
 
 		return $this;
