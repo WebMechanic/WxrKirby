@@ -36,8 +36,8 @@ class Page extends Content
 	protected $id = 0;
 
 	/** Kirby system fields */
-	protected $blueprint = 'default';
-	protected $filename = 'default.txt';
+	protected $blueprint = '';
+	protected $filename = '';
 
 	protected $slug = '';
 
@@ -78,7 +78,7 @@ class Page extends Content
 		}
 
 		$this->blueprint = $blueprint;
-		$this->filename  = $blueprint . $this->ext;
+		$this->setFilename($blueprint);
 		return $this;
 	}
 
@@ -180,16 +180,19 @@ class Page extends Content
 		$ignored    = Converter::getOption('ignore_fields', []);
 
 		$props = [
-			'id', 'title', 'link', 'parent',
-			'name', 'filepath',
+			'title', 'link',
 			'creator', /* Author */
 			'blueprint' => 'template',
-			'date', 'status'
+			'filepath',
+			'date', 'status',
+			'id', 'parent', 'name'
 		];
 		foreach ($props as $method => $prop) {
 			if ($titleField == $prop) {$prop = $titleField;}
 			if (in_array($prop, $ignored)) continue;
 			if (is_string($method)) {
+				$method = 'set' . ucwords($method, '_');
+			} else {
 				$method = 'set' . ucwords($prop, '_');
 				$method = str_replace('_', '', $method);
 			}
@@ -268,17 +271,19 @@ class Page extends Content
 
 		if ($this->debug) {
 			echo 'P ', $contentPath, PHP_EOL,
-				'F ', $this->filename, PHP_EOL,
+				 'F ', $this->filename, PHP_EOL,
 			PHP_EOL;
 		} else {
-			$this->fh = fopen($this->getContentFile(), "w+b");
+			$contentFile = $this->getContentFile();
+			$this->fh = @fopen($contentFile, "w+b");
+		}
+		if (!is_resource($this->fh)) {
+			throw new \RuntimeException("Invalid filepath '$contentFile`.");
 		}
 
 		/** @var Author $creator */
 		$creator = $this->getContent('creator');
-
 		$this->setContent('creator', null);
-		$this->setContent('guid', null);
 
 		foreach ($this->getContent() as $fieldname => $value) {
 			$this->write($fieldname, $value);

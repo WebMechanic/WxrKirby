@@ -129,8 +129,7 @@ abstract class Content
 	 */
 	public function setFilename(string $filename): Content
 	{
-		$this->filename = basename($filename);
-		$this->setFilepath($this->getContentPath() . '/' . $this->filename);
+		$this->filename = $filename .  $this->ext;
 		return $this;
 	}
 
