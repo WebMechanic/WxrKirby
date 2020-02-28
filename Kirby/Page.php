@@ -164,6 +164,7 @@ class Page extends Content
 
 		$titleField = Converter::getOption('title', 'title');
 		$textField  = Converter::getOption('text', 'text');
+		$ignored    = Converter::getOption('ignore_fields', []);
 
 		$props = [
 			'id', 'title', 'link', 'parent',
@@ -174,10 +175,12 @@ class Page extends Content
 		];
 		foreach ($props as $method => $prop) {
 			if ($titleField == $prop) {$prop = $titleField;}
+			if (in_array($prop, $ignored)) continue;
 			if (is_string($method)) {
 				$method = 'set' . ucwords($prop, '_');
 				$method = str_replace('_', '', $method);
 			}
+
 			if (method_exists($this, $method)) {
 				$this->$method($post->{$prop});
 			} else {
@@ -188,18 +191,21 @@ class Page extends Content
 		/* @todo use 'text' option for 'content' fieldname */
 		$props = ['content', 'excerpt', 'description'];
 		foreach ($props as $prop) {
+			if (in_array($prop, $ignored)) continue;
 			$this->setContent($prop, $post->{$prop});
 		}
 
 		/** deconstruct fields from arrays */
 		$props = ['fields', 'data'];
 		foreach ($props as $prop) {
+			if (in_array($prop, $ignored)) continue;
+
 			foreach ((array) $post->{$prop} as $key => $value) {
 				if ($textField == $key) {$key = $textField;}
+				if (in_array($key, $ignored)) continue;
 				$method = 'set' . ucwords($key, '_');
 				$method = str_replace('_', '', $method);
 
-echo "$key|$method - ", @substr($value, 0, 32), PHP_EOL;
 				if (method_exists($this, $method)) {
 					$this->$method($key, $value);
 				} else {
@@ -228,7 +234,7 @@ echo "$key|$method - ", @substr($value, 0, 32), PHP_EOL;
 				'excerpt' => $post->excerpt_html,
 			];
 		}
-die;
+
 		return $this;
 	}
 
@@ -246,6 +252,7 @@ die;
 		}
 
 		echo "Write: ", $this->title, PHP_EOL,"       ", $this->getContentFile(), PHP_EOL;
+
 		if ($this->debug) {
 			echo 'P ', $contentPath, PHP_EOL,
 				'F ', $this->filename, PHP_EOL,
@@ -282,13 +289,15 @@ die;
 
 		$content = $this->html['content'];
 		if (strlen($content)) {
-			if ($this->debug) echo "- Write: {$filePath}content.html \n";
+			echo "- Write: {$filePath}content.html \n";
+
 			file_put_contents("{$filePath}content.html", $content);
 		}
 
 		$excerpt = $this->html['excerpt'];
 		if (strlen($excerpt)) {
-			if ($this->debug) echo "- Write: {$filePath}excerpt.html \n";
+			echo "- Write: {$filePath}excerpt.html \n";
+
 			file_put_contents("{$filePath}excerpt.html", $excerpt);
 		}
 	}
