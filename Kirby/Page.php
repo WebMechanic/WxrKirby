@@ -122,7 +122,7 @@ class Page extends Content
 
 	/**
 	 * Uses Transform\Meta to convert WP meta information into something
-	 * useful for a Kirby page.
+	 * useful for a Kirby content file.
 	 *
 	 * @param string $key
 	 * @param mixed  $value
@@ -135,15 +135,28 @@ class Page extends Content
 		return $this;
 	}
 
+	/**
+	 * Store WP name as Kirby slug.
+	 *
+	 * @param string $name
+	 * @return Page
+	 */
 	public function setName(string $name): Page
 	{
 		$this->slug = $name;
 		return $this;
 	}
 
+	/**
+	 * Store WP 'menu_order' as Kirby 'order' content field.
+	 *
+	 * @param string $order
+	 * @return Page
+	 * @todo use number in output content path
+	 */
 	public function setMenuOrder(string $order): Page
 	{
-		$this->order = (int) $order;
+		$this->order = sprintf('%02d', (int) $order);
 		return $this;
 	}
 
@@ -289,14 +302,14 @@ class Page extends Content
 
 		$content = $this->html['content'];
 		if (strlen($content)) {
-			echo "- Write: {$filePath}content.html \n";
+			echo "  HTML {$filePath}content.html \n";
 
 			file_put_contents("{$filePath}content.html", $content);
 		}
 
 		$excerpt = $this->html['excerpt'];
 		if (strlen($excerpt)) {
-			echo "- Write: {$filePath}excerpt.html \n";
+			echo "  HTML {$filePath}excerpt.html \n";
 
 			file_put_contents("{$filePath}excerpt.html", $excerpt);
 		}
