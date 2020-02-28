@@ -114,8 +114,8 @@ class WXR
 	 */
 	protected function parseItem(DOMElement $item): WXR
 	{
-		static $discard = null;
-		if ($discard === null) $discard = Converter::getOption('discard');
+		static $discardType = null;
+		if ($discardType === null) $discardType = Converter::getOption('discard_type');
 
 		$elms = $item->getElementsByTagName('post_type');
 
@@ -139,7 +139,7 @@ class WXR
 				break;
 
 			default:
-				if (in_array($node->textContent, $discard)) {
+				if (in_array($node->textContent, $discardType)) {
 					break;
 				} else {
 					// @todo throw UnexpectedValueException?

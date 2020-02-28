@@ -70,20 +70,26 @@ class Converter
 	/**
 	 * title: Kirby Field used to store the Post title
 	 * text: Kirby Field used to store the Post content
+	 *
+	 * blueprints: [WIP]
+	 * write_html: [WIP]
+	 * resolve_urls: [WIP]
+	 * ignore_fields: [WIP]
+	 *
 	 * paths: an array with folders to use for output
 	 *  - kirby: root folder (contains 'content' and 'site ' folders)
 	 *  - content: alternative path for content output files
 	 *  - assets: alternative path for images (WP uploads)
 	 *  - site: alternative path for blueprint and account output files
 	 *
-	 * DELEGATE: XML Element names handled by specific classes.
+	 * delegate: XML Element names handled by specific classes.
 	 * 'nav_menu_item': The WP Mainmenu.
 	 *        Only useful to recreate the same structure in Kirby.
 	 *        Due to its complexity, this should be handled in a separate class,
 	 *        i.e. Wordpress\Menu (not provided), rebuilding the node tree based
 	 *        on the `wp:postmeta` information in all <item>s.
 	 *
-	 * DISCARD: XML Element names ignored during conversion.
+	 * discard_type: XML Element names ignored during conversion.
 	 * 'display_type': unknown
 	 * 'ngg_pictures', 'ngg_gallery', 'gal_display_source',
 	 * 'slide', 'lightbox_library': gallery stuff
@@ -105,8 +111,7 @@ class Converter
 		],
 
 		/* a list of WP templates mapped to Kirby blueprints */
-		'blueprints' => [
-		],
+		'blueprints' => [],
 
 		/* also write original `content` to separate .html backup */
 		'write_html' => false,
@@ -116,17 +121,20 @@ class Converter
 			- strip: true|false, remove protocol and domain from URLs (overrides www, https)
 			- https: true|false, make URL https
 			- www  : true|false, drop subdomain from URL */
-		'resolveUrls' => [
+		'resolve_urls' => [
 			'link'          => '{"www":false, "https":true}',
 			'base_site_url' => '{"strip":true}',
 			'base_blog_url' => null,
 		],
 
+		// ignored elements
+		'ignore_fields' => ['guid', 'comment_status', 'ping_status'],
+
 		// ignored item types
 		'delegate' => ['nav_menu_item' => null],
 
 		// discarded plugin data 'post_type'
-		'discard' => ['display_type','wooframework','ngg_pictures','ngg_gallery','gal_display_source','slide','lightbox_library'],
+		'discard_type' => ['display_type','wooframework','ngg_pictures','ngg_gallery','gal_display_source','slide','lightbox_library'],
 
 		// League\HTMLToMarkdown config options
 		'html2md' => [
@@ -148,9 +156,9 @@ class Converter
 		$this->WXR       = new WXR($xml_path);
 		self::$converter = $this;
 
-		foreach (array_keys(static::$options['resolveUrls']) as $key) {
-			if (is_string(static::$options['resolveUrls'][$key])) {
-				static::$options['resolveUrls'][$key] = json_decode(static::$options['resolveUrls'][$key]);
+		foreach (array_keys(static::$options['resolve_urls']) as $key) {
+			if (is_string(static::$options['resolve_urls'][$key])) {
+				static::$options['resolve_urls'][$key] = json_decode(static::$options['resolve_urls'][$key]);
 			}
 		}
 

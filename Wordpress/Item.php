@@ -170,12 +170,12 @@ class Item
 
 	/**
 	 * Have base URLs use HTTPS and drop 'www' hostname.
-	 * Checks $options['resolveUrls'] to enable HTTPS, enable www removal.
+	 * Checks $options['resolve_urls'] to enable HTTPS, enable www removal.
 	 *
 	 * @param string $url
 	 * @return string
 	 * @uses Converter::$options
-	 * @var array $config   how to resolveUrls'
+	 * @var array $config   how to resolve URLs
 	 * @var string $host    the Site host incl. subdomain
 	 * @var string $domain  the Site host excl. subdomain
 	 */
@@ -184,7 +184,7 @@ class Item
 		static $config = null, $host = null, $domain = null;
 
 		if ($config === null) {
-			$config = (object) Converter::getOption('resolveUrls');
+			$config = (object) Converter::getOption('resolve_urls');
 		}
 		if ($host === null) {
 			$host  = $this->channel()->host;
