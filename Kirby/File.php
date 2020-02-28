@@ -24,7 +24,7 @@ class File extends Content
 	 */
 	public function assign($item): File
 	{
-		$this->ext = Converter::getOption('extension', '.txt');
+		$this->set('ext', Converter::getOption('extension', '.txt'));
 		// TODO: Implement assign() method.
 		return $this;
 	}
