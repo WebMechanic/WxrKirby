@@ -41,6 +41,8 @@ class Page extends Content
 
 	protected $slug = '';
 
+	protected $order = 0;
+
 	protected $created = '';
 
 	/**
@@ -139,6 +141,12 @@ class Page extends Content
 		return $this;
 	}
 
+	public function setMenuOrder(string $order): Page
+	{
+		$this->order = (int) $order;
+		return $this;
+	}
+
 	/**
 	 * Takes a Wordpress <item> of type "post" and reads properties to create
 	 * a Kirby Page file.
@@ -154,6 +162,9 @@ class Page extends Content
 		$this->set('ext', Converter::getOption('extension', '.txt'));
 		$this->debug = Converter::getOption('debug', false);
 
+		$titleField = Converter::getOption('title', 'title');
+		$textField  = Converter::getOption('text', 'text');
+
 		$props = [
 			'id', 'title', 'link', 'parent',
 			'name', 'filepath',
@@ -162,8 +173,10 @@ class Page extends Content
 			'date', 'status'
 		];
 		foreach ($props as $method => $prop) {
+			if ($titleField == $prop) {$prop = $titleField;}
 			if (is_string($method)) {
-				$method = 'set' . ucfirst("{$method}");
+				$method = 'set' . ucwords($prop, '_');
+				$method = str_replace('_', '', $method);
 			}
 			if (method_exists($this, $method)) {
 				$this->$method($post->{$prop});
@@ -178,10 +191,15 @@ class Page extends Content
 			$this->setContent($prop, $post->{$prop});
 		}
 
+		/** deconstruct fields from arrays */
 		$props = ['fields', 'data'];
 		foreach ($props as $prop) {
-			$method = 'set' . ucfirst("{$prop}");
 			foreach ((array) $post->{$prop} as $key => $value) {
+				if ($textField == $key) {$key = $textField;}
+				$method = 'set' . ucwords($key, '_');
+				$method = str_replace('_', '', $method);
+
+echo "$key|$method - ", @substr($value, 0, 32), PHP_EOL;
 				if (method_exists($this, $method)) {
 					$this->$method($key, $value);
 				} else {
@@ -190,11 +208,12 @@ class Page extends Content
 			}
 		}
 
+		/** build value lists from arrays */
 		$props = ['tags', 'categories'];
 		foreach ($props as $prop) {
 			$value = $post->{$prop};
 			if (is_array($value)) {
-				$this->set($prop, implode(',', $value));
+				$this->set($prop, implode(', ', $value));
 			} else {
 				$this->set($prop, $value);
 			}
@@ -202,17 +221,14 @@ class Page extends Content
 
 		$this->meta = $post->meta;
 
-		/* @todo save as .html backup */
-//		$props = ['content_html', 'excerpt_html'];
-
-		/* optionally written in writeHtmlOutput() */
+		/** optionally written in writeHtmlOutput() */
 		if (Converter::getOption('write_html', false)) {
 			$this->html = [
 				'content' => $post->content_html,
 				'excerpt' => $post->excerpt_html,
 			];
 		}
-
+die;
 		return $this;
 	}
 
