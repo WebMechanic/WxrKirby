@@ -57,14 +57,22 @@ class Site extends Content
 	 */
 	public function assign($channel): Site
 	{
+		$titleField = Converter::getOption('title', 'title');
+		$ignored    = Converter::getOption('ignore_fields', []);
+
 		$this->set('ext', Converter::getOption('extension', '.txt'));
 		$this->set('url', $channel->link);
-		$this->title  = $channel->title;
+		$this->set('description', $channel->description);
+
+		$this->{$titleField}  = $channel->title;
 		$this->host   = $channel->host;
 		$this->blog   = $channel->blogUrl;
 
-		foreach ((array) $channel->fields as $key => $value) {
-			$method = 'set' . ucfirst("{$key}");
+		foreach ($channel->fields as $key => $value) {
+			if (in_array($key, $ignored)) continue;
+			$method = 'set' . ucwords($key, '_');
+			$method = str_replace('_', '', $method);
+
 			if (method_exists($this, $method)) {
 				$this->$method($key, $value);
 			} else {
