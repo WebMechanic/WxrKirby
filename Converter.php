@@ -127,8 +127,8 @@ class Converter
 			'base_blog_url' => null,
 		],
 
-		// ignored elements
-		'ignore_fields' => ['guid', 'comment_status', 'ping_status'],
+		// ignored elements on assign()
+		'ignore_fields' => ['guid', 'comment_status', 'ping_status', 'template'],
 
 		// ignored item types
 		'delegate' => ['nav_menu_item' => null],
