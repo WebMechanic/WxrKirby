@@ -259,12 +259,12 @@ class Page extends Content
 	 * @uses writeHtmlOutput()
 	 * @todo use \Kirby\Cms\File::create() and \Kirby\Toolkit\F
 	 */
-	public function writeOutput()
+	public function writeOutput(): Page
 	{
 		try {
 			$contentPath = $this->createContentPath($this->filepath);
 		} catch (\RuntimeException $e) {
-			return;
+			return $this;
 		}
 
 		echo "Write: ", $this->title, PHP_EOL,"       ", $this->getContentFile(), PHP_EOL;
@@ -298,10 +298,13 @@ class Page extends Content
 
 		if (!$this->debug) fclose($this->fh);
 
-//		$this->writeHtmlOutput();
+		return $this;
 	}
 
-	public function writeHtmlOutput()
+	/**
+	 * @return Page
+	 */
+	public function writeHtmlOutput(): Page
 	{
 		$filePath = $this->getContentPath() . $this->filepath;
 
@@ -318,6 +321,8 @@ class Page extends Content
 
 			file_put_contents("{$filePath}excerpt.html", $excerpt);
 		}
+
+		return $this;
 	}
 
 	private function write($fieldname, $value)
