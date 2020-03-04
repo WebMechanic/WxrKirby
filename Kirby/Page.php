@@ -94,33 +94,6 @@ class Page extends Content
 	}
 
 	/**
-	 * @param $subfolders
-	 * @return string
-	 * @throws \RuntimeException "Error creating content path"
-	 */
-	public function createContentPath($subfolders): string
-	{
-		$contentPath = $this->getContentPath() . $subfolders;
-		@mkdir($contentPath, 0750, true);
-		$contentPath = realpath($contentPath);
-		if (!is_dir($contentPath)) {
-			throw new \RuntimeException('Error creating content path ['. $this->getContentPath() . $subfolders .']');
-		}
-
-		return $contentPath;
-	}
-
-	/**
-	 * Returns the fully qualified content filepath for Kirby. Does not check
-	 * if the file actually exists.
-	 * @return string
-	 */
-	public function getContentFile(): string
-	{
-		return $this->getContentPath() . $this->filepath . $this->filename;
-	}
-
-	/**
 	 * Uses Transform\Meta to convert WP meta information into something
 	 * useful for a Kirby content file.
 	 *
@@ -267,14 +240,14 @@ class Page extends Content
 			return $this;
 		}
 
-		echo "Write: ", $this->title, PHP_EOL,"       ", $this->getContentFile(), PHP_EOL;
+		$contentFile = $this->getContentFile();
+		echo "Write: ", $this->title, PHP_EOL,"       ", $contentFile, PHP_EOL;
 
 		if ($this->debug) {
 			echo 'P ', $contentPath, PHP_EOL,
 				 'F ', $this->filename, PHP_EOL,
 			PHP_EOL;
 		} else {
-			$contentFile = $this->getContentFile();
 			$this->fh = @fopen($contentFile, "w+b");
 		}
 		if (!is_resource($this->fh)) {

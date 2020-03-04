@@ -163,6 +163,33 @@ abstract class Content
 	}
 
 	/**
+	 * @param $subfolders
+	 * @return string
+	 * @throws \RuntimeException "Error creating content path"
+	 */
+	public function createContentPath($subfolders): string
+	{
+		$contentPath = $this->getContentPath() . $subfolders;
+		@mkdir($contentPath, 0750, true);
+		$contentPath = realpath($contentPath);
+		if (!is_dir($contentPath)) {
+			throw new \RuntimeException('Error creating content path ['. $this->getContentPath() . $subfolders .']');
+		}
+
+		return $contentPath;
+	}
+
+	/**
+	 * Returns the fully qualified content filepath for Kirby. Does not check
+	 * if the file actually exists.
+	 * @return string
+	 */
+	public function getContentFile(): string
+	{
+		return $this->getContentPath() . $this->filepath . $this->filename;
+	}
+
+	/**
 	 * Sets a content field that will also appear in the output file.
 	 *
 	 * @param string       $fieldname
