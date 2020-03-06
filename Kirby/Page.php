@@ -53,8 +53,6 @@ class Page extends Content
 	/** @var array the original HTML markup */
 	private $html = ['content' => null, 'excerpt' => null];
 
-	/** @var resource file handle */
-	private $fh = null;
 	/** @var boolean */
 	private $debug = false;
 
@@ -296,25 +294,6 @@ class Page extends Content
 		}
 
 		return $this;
-	}
-
-	private function write($fieldname, $value)
-	{
-		if (empty($value)) {
-			return;
-		}
-		if (is_array($value)) {
-			$value = @implode(', ', $value);
-		}
-
-		$nl   = strlen($value) > 64 ? "\n" : ' ';
-		$line = sprintf("%s :{$nl}%s\n\n----\n\n", ucfirst($fieldname), $value);
-
-		if ($this->debug) {
-			echo $line;
-		} else {
-			fwrite($this->fh, $line);
-		}
 	}
 
 	public function dump()

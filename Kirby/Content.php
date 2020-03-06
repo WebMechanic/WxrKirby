@@ -26,6 +26,8 @@ abstract class Content
 	protected $filename = 'default';
 	/** @var string file extension; updated at runtime */
 	protected $ext = '.txt';
+	/** @var resource file handle */
+	protected $fh = null;
 
 	/** @var string link element value of the WP <item> or <channel> */
 	protected $link = '';
@@ -221,6 +223,25 @@ abstract class Content
 	}
 
 	abstract public function writeOutput();
+
+	protected function write($fieldname, $value)
+	{
+		if (empty($value)) {
+			return;
+		}
+		if (is_array($value)) {
+			$value = @implode(', ', $value);
+		}
+
+		$nl   = strlen($value) > 64 ? "\n" : ' ';
+		$line = sprintf("%s :{$nl}%s\n\n----\n\n", ucfirst($fieldname), $value);
+
+		if ($this->debug) {
+			echo $line;
+		} else {
+			fwrite($this->fh, $line);
+		}
+	}
 
 	/**
 	 * Take the $link and $filepath of the ressource to create Apache Redirect
