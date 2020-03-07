@@ -27,7 +27,7 @@ class Site extends Content
 	 * @see setFilename();
 	 * @var string Wordpress Site metadata useful for Kirby
 	 */
-	protected $filename = 'wordpress';
+	protected $filename = '';
 
 	/** @var string Website Title */
 	protected $title;
@@ -69,6 +69,9 @@ class Site extends Content
 		$this->set('url', $channel->link);
 		$this->set('description', $channel->description);
 
+		/** don't overwrite `site.txt` */
+		$this->setFilename('wordpress');
+
 		$this->{$titleField}  = $channel->title;
 		$this->host   = $channel->host;
 		$this->blog   = $channel->blogUrl;
@@ -91,21 +94,29 @@ class Site extends Content
 	/**
 	 * @todo use Kirby\Cms\File::create() and Kirby\Toolkit\F
 	 */
-	public function writeOutput()
+	public function writeOutput(): Site
 	{
-		$content = <<<OUT
-Title: {$this->title}
----- 
-URL: {$this->url}
----- 
-Link: {$this->link}
-----
+		try {
+			$contentPath = $this->createContentPath($this->filepath);
+		} catch (\RuntimeException $e) {
+			return $this;
+		}
 
-OUT;
+		$contentFile = $this->getContentFile();
+		echo "Site Info: ", $this->title, PHP_EOL,"       ", $contentFile, PHP_EOL;
 
-		echo $this->filepath, PHP_EOL,
-		$content, PHP_EOL
-		, PHP_EOL;
+		if ($this->debug) {
+			echo 'P ', $contentPath, PHP_EOL,
+				 'F ', $this->filename, PHP_EOL,
+			PHP_EOL;
+		}
+
+		$props = ['title', 'description', 'url', 'blog'];
+		foreach ($props as $prop) {
+			$this->write($prop, $this->$prop);
+		}
+
+		return $this;
 	}
 
 	/**
