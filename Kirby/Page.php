@@ -247,9 +247,9 @@ class Page extends Content
 			PHP_EOL;
 		} else {
 			$this->fh = @fopen($contentFile, "w+b");
-		}
-		if (!is_resource($this->fh)) {
-			throw new \RuntimeException("Invalid filepath '$contentFile`.");
+			if (!is_resource($this->fh)) {
+				throw new \RuntimeException("Invalid filepath '$contentFile`.");
+			}
 		}
 
 		/** @var Author $creator */
