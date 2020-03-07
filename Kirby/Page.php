@@ -54,7 +54,7 @@ class Page extends Content
 	private $html = ['content' => null, 'excerpt' => null];
 
 	/** @var boolean */
-	private $debug = false;
+	protected $debug = false;
 
 	/**
 	 * Sets the $blueprint to be used for this page.
@@ -144,7 +144,7 @@ class Page extends Content
 	public function assign($post): Page
 	{
 		$this->set('ext', Converter::getOption('extension', '.txt'));
-		$this->debug = Converter::getOption('debug', false);
+		$this->debug = (bool) Converter::getOption('debug', false);
 
 		$titleField = Converter::getOption('title', 'title');
 		$textField  = Converter::getOption('text', 'text');

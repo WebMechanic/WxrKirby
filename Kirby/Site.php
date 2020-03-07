@@ -50,6 +50,9 @@ class Site extends Content
 	 */
 	protected $rewriteMap = ['\/slides\/.*' => '/gallery/{filepath}/{filename}'];
 
+	/** @var boolean */
+	protected $debug = false;
+
 	/**
 	 * @param Channel $channel
 	 * @return mixed|void
@@ -57,6 +60,8 @@ class Site extends Content
 	 */
 	public function assign($channel): Site
 	{
+		$this->debug = (bool) Converter::getOption('debug', false);
+
 		$titleField = Converter::getOption('title', 'title');
 		$ignored    = Converter::getOption('ignore_fields', []);
 
