@@ -21,7 +21,7 @@ abstract class Content
 	/** @var string Kirby content folder; updated at runtime */
 	protected $contentPath = '/content/';
 	/** @var string relative path in $contentPath of this file */
-	protected $filepath = '';
+	protected $filepath = '/';
 	/** @var string this file's base filename */
 	protected $filename = 'default';
 	/** @var string file extension; updated at runtime */
@@ -236,7 +236,7 @@ abstract class Content
 		$nl   = strlen($value) > 64 ? "\n" : ' ';
 		$line = sprintf("%s :{$nl}%s\n\n----\n\n", ucfirst($fieldname), $value);
 
-		if ($this->debug !== false) {
+		if ($this->debug) {
 			echo $line;
 		} else {
 			fwrite($this->fh, $line);
