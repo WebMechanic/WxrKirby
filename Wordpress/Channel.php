@@ -65,6 +65,8 @@ class Channel extends Item
 			case 'language':
 			case 'link':
 			case 'base_blog_url':   /* @see setBaseBlogUrl() */
+			case 'category':        /* @see setCategory() */
+			case 'term':            /* @see setTerm() */
 				$this->set($elt);
 				break;
 			}
@@ -90,6 +92,72 @@ class Channel extends Item
 		// this will use <wp:base_site_url> for the transform
 		$this->blogUrl = $this->cleanUrl($url->textContent);
 
+		return $this;
+	}
+
+	/**
+	 * <wp:category><wp:term_id>1</wp:term_id><wp:category_nicename>allgemein</wp:category_nicename><wp:category_parent></wp:category_parent><wp:cat_name><![CDATA[Allgemein]]></wp:cat_name></wp:category>
+	 * @param DOMNode $cat
+	 * @return Channel
+	 */
+	public function setCategory(DOMNode $cat): Channel
+	{
+		settype($this->data['categories'], 'array');
+		$id = 0;
+		$nicename = '';
+		$parent = 0;
+		$name = '';
+		/** @var DOMElement $elt */
+		foreach ($cat->childNodes as $elt) {
+			switch ($elt->localName) {
+			case 'term_id';
+				$id = (int)$elt->textContent;
+				break;
+			case 'category_nicename';
+				$nicename = $elt->textContent;
+				break;
+			case 'category_parent';
+				$parent = (int)$elt->textContent;
+				break;
+			case 'cat_name';
+				$name = $elt->textContent;
+				break;
+			}
+		}
+		$this->data['categories'][$nicename] = ['name'=>$name, $id => $parent];
+		return $this;
+	}
+
+	/**
+	 * <wp:term><wp:term_id>3</wp:term_id><wp:term_taxonomy>nav_menu</wp:term_taxonomy><wp:term_slug>hauptnavigation</wp:term_slug><wp:term_name><![CDATA[Hauptnavigation]]></wp:term_name></wp:term>
+	 * @param DOMNode $term
+	 * @return Channel
+	 */
+	public function setTerm(DOMNode $term): Channel
+	{
+		settype($this->data['terms'], 'array');
+		$id = 0;
+		$taxonomy = '';
+		$slug = 0;
+		$name = '';
+		/** @var DOMElement $elt */
+		foreach ($term->childNodes as $elt) {
+			switch ($elt->localName) {
+			case 'term_id';
+				$id = (int)$elt->textContent;
+				break;
+			case 'term_taxonomy';
+				$taxonomy = $elt->textContent;
+				break;
+			case 'term_slug';
+				$slug = $elt->textContent;
+				break;
+			case 'term_name';
+				$name = $elt->textContent;
+				break;
+			}
+		}
+		$this->data['categories'][$id] = [$taxonomy=>$name, $id => $slug];
 		return $this;
 	}
 
