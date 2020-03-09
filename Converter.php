@@ -432,7 +432,9 @@ class Converter
 
 	/**
 	 * If Converter $option 'ordering' is true, checks the `order` property of
-	 * a Page and renames the filepath with the menu order taken from WP.
+	 * a Page and prefixes the filepath with the menu order taken from WP. This
+	 * also enables a status of "listed" in Kirby, whereas folders not starting
+	 * with a number are considered "drafts".
 	 *
 	 * @return Converter
 	 * @todo implement for nested paths, apply order to inner item only.
@@ -445,9 +447,11 @@ class Converter
 		# loop through $pages
 		# for pages with $order > 0 collect their filepath
 		# split path into folders, log nesting depth
-		# walk hierarchy and apply $order to deepest item
-		# rename references to intermediate (middle) folders
+		# apply $order to a new "virtual" folder name property; "NN_folder-name"
+		# walk folder hierarchy
+		# rename references of intermediate (middle) folders
 		# repeat until all full paths are renamed
+		# apply new names recursively
 
 		return $this;
 	}
