@@ -476,7 +476,11 @@ class Post extends Item
 		for ($e = 0; $e < $elms->length; $e++) {
 			$elt  = $elms->item($e);
 			$link = $elt->getAttribute($attr);
-			array_push($this->data[$store], $this->cleanUrl($link));
+			// returns empty string for '#' only links
+			$url  = $this->cleanUrl($link);
+			if (!empty($url)) {
+				array_push($this->data[$store], $url);
+			}
 		}
 	}
 

@@ -172,6 +172,9 @@ class Item
 	 * Have base URLs use HTTPS and drop 'www' hostname.
 	 * Checks $options['resolve_urls'] to enable HTTPS, enable www removal.
 	 *
+	 * If the URLs only consists of the hash tag (#) an empty string is
+	 * returned as it likely denotes a now defunct JS handler.
+	 *
 	 * @param string $url
 	 * @return string
 	 * @uses Converter::$options
@@ -186,6 +189,10 @@ class Item
 		if ($config === null) {
 			$config = (object) Converter::getOption('resolve_urls');
 		}
+		if ($url === '#') {
+			return '';
+		}
+
 		if ($host === null) {
 			$host  = $this->channel()->host;
 			/* this might fail i.e. with british URLs w/o subdomain like 'domain.co.uk' */
