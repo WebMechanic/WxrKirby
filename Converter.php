@@ -318,8 +318,10 @@ class Converter
 	public function setSite(Channel $channel): Converter
 	{
 		$this->site = new Site();
-		$this->setSiteOptions();
+
+		$this->setSiteOptions(true);
 		$this->site->assign($channel);
+		$this->setSiteOptions(false);
 
 		return $this;
 	}
@@ -328,10 +330,11 @@ class Converter
 	 * Override in your subclass to customize some Site properties.
 	 * Called within setSite().
 	 *
+	 * @param bool $pre_assign  state of assign() call
 	 * @return Converter
 	 * @see setSite()
 	 */
-	public function setSiteOptions(): Converter	{ return $this;	}
+	protected function setSiteOptions(bool $pre_assign): Converter	{ return $this;	}
 
 	/**
 	 * An array of Wordpress\Post's to be transformed into Kirby\Page's.
@@ -425,6 +428,28 @@ class Converter
 	public function setImage(Attachment $image): Converter
 	{
 		return $this->setFile($image);
+	}
+
+	/**
+	 * If Converter $option 'ordering' is true, checks the `order` property of
+	 * a Page and renames the filepath with the menu order taken from WP.
+	 *
+	 * @return Converter
+	 * @todo implement for nested paths, apply order to inner item only.
+	 */
+	public function setOrdering(): Converter
+	{
+		$ordering = (bool) Converter::getOption('paths', ['ordering' => false])['ordering'];
+		if (!$ordering) return $this;
+
+		# loop through $pages
+		# for pages with $order > 0 collect their filepath
+		# split path into folders, log nesting depth
+		# walk hierarchy and apply $order to deepest item
+		# rename references to intermediate (middle) folders
+		# repeat until all full paths are renamed
+
+		return $this;
 	}
 
 	public function __toString()
