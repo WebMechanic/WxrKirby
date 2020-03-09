@@ -77,6 +77,9 @@ class Converter
 	 * ignore_fields: [WIP]
 	 *
 	 * paths: an array with folders to use for output
+	 *  - create: create (nested) content paths based on Item URL
+	 *  - menu_order: add (zero padded) numeric ordering to folder name
+	 *                if Page item has a `menu_order`
 	 *  - kirby: root folder (contains 'content' and 'site ' folders)
 	 *  - content: alternative path for content output files
 	 *  - assets: alternative path for images (WP uploads)
@@ -104,13 +107,16 @@ class Converter
 		// that's where the output goes. Kirby App config may override
 		'paths' => [
 			'create' => false,
+			'menu_order' => true,
 			'kirby' => __DIR__ . '/migration/',
 			'content' => null,
 			'assets' => null,
 			'site' => null,
 		],
 
-		/* a list of WP templates mapped to Kirby blueprints */
+		/* a list of WP '_wp_page_template' mapped to Kirby blueprints, i.e.
+			['contact' => 'default']
+		 */
 		'blueprints' => [],
 
 		/* also write original `content` to separate .html backup */
@@ -294,7 +300,11 @@ class Converter
 	}
 
 	/**
-	 * Assign a Site object to write information into `site.txt`.
+	 * Creates basic Site information from the WXR `<channel>` element.
+	 * To customize the Site object implement `setSiteOptions()` in your
+	 * converter subclass, i.e to add blueprints or to change the default
+	 * output filename. The method will be called before data from $channel
+	 * is assigned.
 	 *
 	 * @param Channel $channel
 	 *

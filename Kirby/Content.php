@@ -83,7 +83,7 @@ abstract class Content
 
 		if (empty(trim($this->prefixFilter, '/'))) {
 			$f = explode('\\', strtolower(get_class($this)));
-			$this->prefixFilter = '/^('. array_pop($f) .')_?/';
+			$this->prefixFilter = '/^(' . array_pop($f) . ')_?/';
 		}
 
 		// turn author_id > id, post_parent > parent etc.
@@ -131,7 +131,7 @@ abstract class Content
 	 */
 	public function setFilename(string $filename): Content
 	{
-		$this->filename = $filename .  $this->ext;
+		$this->filename = $filename . $this->ext;
 		return $this;
 	}
 
@@ -153,7 +153,7 @@ abstract class Content
 	 * Returns the fully qualified path to one of Kirby's content folders
 	 * as of $options['paths'].
 	 *
-	 * @param string $folder  one of kirby, content, site, assets
+	 * @param string $folder one of kirby, content, site, assets
 	 * @return string
 	 * @uses Converter::$options
 	 */
@@ -175,7 +175,7 @@ abstract class Content
 		@mkdir($contentPath, 0750, true);
 		$contentPath = realpath($contentPath);
 		if (!is_dir($contentPath)) {
-			throw new \RuntimeException('Error creating content path ['. $this->getContentPath() . $subfolders .']');
+			throw new \RuntimeException('Error creating content path [' . $this->getContentPath() . $subfolders . ']');
 		}
 
 		return $contentPath;
@@ -184,6 +184,7 @@ abstract class Content
 	/**
 	 * Returns the fully qualified content filepath for Kirby. Does not check
 	 * if the file actually exists.
+	 *
 	 * @return string
 	 */
 	public function getContentFile(): string
@@ -195,8 +196,9 @@ abstract class Content
 	 * Sets a content field that will also appear in the output file.
 	 *
 	 * @param string       $fieldname
-	 * @param string|array $value  if NULL removes the content entry
+	 * @param string|array $value if NULL removes the content entry
 	 * @return Content
+	 * @see Post::setContent()
 	 */
 	public function setContent(string $fieldname, $value): Content
 	{
@@ -264,18 +266,18 @@ abstract class Content
 	protected function rewriteApache($status = 'permanent')
 	{
 		static $states = [
-			'permanent'=>301,
-			'temp'=>302,
-			'seeother'=>303,
-			'gone'=>410,
-			];
+			'permanent' => 301,
+			'temp' => 302,
+			'seeother' => 303,
+			'gone' => 410,
+		];
 
-		$status = isset($states[$status]) ? $states[$status] : (int) $status;
+		$status = isset($states[$status]) ? $states[$status] : (int)$status;
 		if ($status < 300) $status = $states['permanent'];
 
 		$redirect = "Redirect $status " . $this->link;
 		if ($status >= 300 || $status < 400) {
-			$redirect .= ' '. $this->filepath;
+			$redirect .= ' ' . $this->filepath;
 		}
 
 		echo $redirect; // @fixme write to redirect.log file

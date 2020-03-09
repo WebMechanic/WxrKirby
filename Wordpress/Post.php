@@ -39,6 +39,9 @@ class Post extends Item
 	/** @var string */
 	protected $filepath = '';
 
+	/** @var integer */
+	protected $order = '';
+
 	/** @var string Post template for a potential Kirby Blueprint */
 	protected $template = 'default';
 
@@ -277,6 +280,12 @@ class Post extends Item
 	public function setName(DOMNode $elt): Post
 	{
 		$this->name = $elt->textContent;
+		return $this;
+	}
+
+	public function setMenuOrder(DOMNode $elt): Post
+	{
+		$this->order = (int) $elt->textContent;
 		return $this;
 	}
 
