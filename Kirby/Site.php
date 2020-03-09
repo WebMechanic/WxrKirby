@@ -109,12 +109,19 @@ class Site extends Content
 			echo 'P ', $contentPath, PHP_EOL,
 				 'F ', $this->filename, PHP_EOL,
 			PHP_EOL;
+		} else {
+			$this->fh = @fopen($contentFile, "w+b");
+			if (!is_resource($this->fh)) {
+				throw new \RuntimeException("Invalid filepath '$contentFile`.");
+			}
 		}
 
 		$props = ['title', 'description', 'url', 'blog'];
 		foreach ($props as $prop) {
 			$this->write($prop, $this->$prop);
 		}
+
+		if (is_resource($this->fh)) fclose($this->fh);
 
 		return $this;
 	}

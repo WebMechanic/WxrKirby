@@ -267,7 +267,7 @@ class Page extends Content
 			$this->write($prop, $this->$prop);
 		}
 
-		if (!$this->debug) fclose($this->fh);
+		if (is_resource($this->fh)) fclose($this->fh);
 
 		return $this;
 	}
