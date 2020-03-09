@@ -302,14 +302,15 @@ class Converter
 	/**
 	 * Creates basic Site information from the WXR `<channel>` element.
 	 * To customize the Site object implement `setSiteOptions()` in your
-	 * converter subclass, i.e to add blueprints or to change the default
+	 * Converter subclass, e.g. to add blueprints or to change the default
 	 * output filename. The method will be called before data from $channel
-	 * is assigned.
+	 * is eventually assigned.
 	 *
 	 * @param Channel $channel
 	 *
 	 * @return Converter
 	 * @see Site::assign()
+	 * @uses setSiteOptions()
 	 */
 	public function setSite(Channel $channel): Converter
 	{
