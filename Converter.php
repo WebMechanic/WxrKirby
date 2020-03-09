@@ -68,18 +68,21 @@ class Converter
 	public static $HTML;
 
 	/**
-	 * title: Kirby Field used to store the Post title
-	 * text: Kirby Field used to store the Post content
+	 * title: Kirby Field used to store the Post's title.
+	 * text: Kirby Field used to store the Post's content body.
 	 *
-	 * blueprints: [WIP]
-	 * write_html: [WIP]
-	 * resolve_urls: [WIP]
-	 * ignore_fields: [WIP]
+	 * blueprints: a list of WP '_wp_page_template' mapped to Kirby blueprints
 	 *
-	 * paths: an array with folders to use for output
+	 * write_html: whether to store the original item contents as .html files.
+	 *
+	 * resolve_urls: rules on how to handle and transform internal URLs
+	 *
+	 * ignore_fields: list of element names ignored during conversion.
+	 *
+	 * paths: rules for path handling and list with folders to use for output
 	 *  - create: create (nested) content paths based on Item URL
-	 *  - menu_order: add (zero padded) numeric ordering to folder name
-	 *                if Page item has a `menu_order`
+	 *  - ordering: add (zero padded) numeric ordering to folder name
+	 *                if original Page item has a `menu_order` > 0
 	 *  - kirby: root folder (contains 'content' and 'site ' folders)
 	 *  - content: alternative path for content output files
 	 *  - assets: alternative path for images (WP uploads)
@@ -102,12 +105,12 @@ class Converter
 	 */
 	protected static $options = [
 		'title' => 'title',
-		'text' => 'text',
+		'body' => 'text',
 
 		// that's where the output goes. Kirby App config may override
 		'paths' => [
 			'create' => false,
-			'menu_order' => true,
+			'ordering' => false,
 			'kirby' => __DIR__ . '/migration/',
 			'content' => null,
 			'assets' => null,
@@ -136,7 +139,7 @@ class Converter
 		// ignored elements on assign()
 		'ignore_fields' => ['guid', 'comment_status', 'ping_status'],
 
-		// ignored item types
+		// delegated item types (need implementation classes)
 		'delegate' => ['nav_menu_item' => null],
 
 		// discarded plugin data 'post_type'
