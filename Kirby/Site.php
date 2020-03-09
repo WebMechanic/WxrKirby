@@ -69,8 +69,10 @@ class Site extends Content
 		$this->set('url', $channel->link);
 		$this->set('description', $channel->description);
 
-		/** don't overwrite `site.txt` */
-		$this->setFilename('wordpress');
+		/** 'site.txt' output file */
+		if (empty($this->filename)) {
+			$this->setFilename('wordpress');
+		}
 
 		$this->{$titleField}  = $channel->title;
 		$this->host   = $channel->host;
@@ -127,7 +129,9 @@ class Site extends Content
 	}
 
 	/**
-	 * Add the name of a $blueprint file to be used for content of the given $path
+	 * Add the name of a $blueprint file to be used for content of the given
+	 * $filepath. Unlike the blueprint Converter option, this works on the
+	 * content output filepath only.
 	 *
 	 * @param string $filepath
 	 * @param string $blueprint

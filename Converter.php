@@ -299,10 +299,15 @@ class Converter
 	 * @param Channel $channel
 	 *
 	 * @return Converter
+	 * @see Site::assign()
 	 */
 	public function setSite(Channel $channel): Converter
 	{
 		$this->site = new Site();
+		if (method_exists($this, 'setSiteOptions')) {
+			$this->{'setSiteOptions'}();
+		}
+
 		$this->site->assign($channel);
 
 		return $this;
