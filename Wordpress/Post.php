@@ -138,10 +138,13 @@ class Post extends Item
 	}
 
 	/**
+	 * Based on the $elt textContent adds original as `content_html` and a
+	 * HTML free variant to `content` using the HTMLMarkdown
+	 *
 	 * @param DOMNode $elt
 	 *
 	 * @return Post
-	 * @see setAbstract()
+	 * @see setIntro()
 	 */
 	public function setContent(DOMNode $elt): Post
 	{
@@ -151,14 +154,6 @@ class Post extends Item
 				$this->extractInlineUrls($this->content_html);
 				$this->hints ^= static::PARSE_CONTENT;
 				$this->content = $this->htmlConvert($this->content_html);
-
-				if (isset($this->fields['abstract'])) {
-					$this->addField('abstract', $this->htmlConvert( $this->getField('abstract') ));
-				}
-				if (isset($this->fields['intro'])) {
-					$this->addField('intro', $this->htmlConvert($this->getField('intro')));
-				}
-
 			} else {
 				$this->content = $this->content_html;
 			}
@@ -223,11 +218,10 @@ class Post extends Item
 	 * @param string $text
 	 * @return Post
 	 */
-	public function setAbstract(string $text): Post
+	public function setIntro(string $text): Post
 	{
 		if (!empty($text)) {
-			$this->addField('abstract', $text);
-			$this->addField('intro', $text);
+			$this->addField('intro', $this->htmlConvert($text));
 		}
 
 		return $this;
@@ -401,8 +395,10 @@ class Post extends Item
 	}
 
 	/**
-	 * Called on `<wp:postmeta>`, stores the template name as a potential
-	 * blueprint name for the Kirby\Page.
+	 * Called on `<wp:postmeta>`, stores any '_wp_page_template' as a potential
+	 * blueprint name for the Kirby\Page. The 'template-' prefix string is
+	 * automatically removed and what's left becomes the basename for the
+	 * page's blueprint.
 	 *
 	 * @param DOMNode $elt
 	 * @return Post
