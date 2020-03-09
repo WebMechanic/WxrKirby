@@ -236,7 +236,7 @@ abstract class Content
 		}
 
 		$nl   = strlen($value) > 64 ? "\n" : ' ';
-		$line = sprintf("%s :{$nl}%s\n\n----\n\n", ucfirst($fieldname), $value);
+		$line = sprintf("%s:{$nl}%s\n\n----\n\n", ucfirst($fieldname), $value);
 
 		if ($this->debug) {
 			echo $line;
