@@ -315,14 +315,20 @@ class Converter
 	public function setSite(Channel $channel): Converter
 	{
 		$this->site = new Site();
-		if (method_exists($this, 'setSiteOptions')) {
-			$this->{'setSiteOptions'}();
-		}
-
+		$this->setSiteOptions();
 		$this->site->assign($channel);
 
 		return $this;
 	}
+
+	/**
+	 * Override in your subclass to customize some Site properties.
+	 * Called within setSite().
+	 *
+	 * @return Converter
+	 * @see setSite()
+	 */
+	public function setSiteOptions(): Converter	{ return $this;	}
 
 	/**
 	 * An array of Wordpress\Post's to be transformed into Kirby\Page's.
