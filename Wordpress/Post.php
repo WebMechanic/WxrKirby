@@ -40,7 +40,7 @@ class Post extends Item
 	protected $filepath = '';
 
 	/** @var integer */
-	protected $order = '';
+	protected $order = 0;
 
 	/** @var string Post template for a potential Kirby Blueprint */
 	protected $template = 'default';

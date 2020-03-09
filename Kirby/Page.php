@@ -41,7 +41,7 @@ class Page extends Content
 
 	protected $slug = '';
 
-	protected $order = 0;
+	protected $order = '';
 
 	protected $created = '';
 
@@ -127,7 +127,10 @@ class Page extends Content
 	 */
 	public function setMenuOrder(string $order): Page
 	{
-		$this->order = sprintf('%02d', (int) $order);
+		$order = trim($order);
+		if (!empty($order)) {
+			$this->order = sprintf('%02d', (int)$order);
+		}
 		return $this;
 	}
 
@@ -143,12 +146,15 @@ class Page extends Content
 	 */
 	public function assign($post): Page
 	{
-		$this->set('ext', Converter::getOption('extension', '.txt'));
 		$this->debug = (bool) Converter::getOption('debug', false);
 
 		$titleField = Converter::getOption('title', 'title');
-		$textField  = Converter::getOption('text', 'text');
+		$textField  = Converter::getOption('body', 'text');
 		$ignored    = Converter::getOption('ignore_fields', []);
+
+		$this->set('ext', Converter::getOption('extension', '.txt'));
+
+		$this->setMenuOrder($post->order);
 
 		$props = [
 			'title', 'link',
@@ -175,7 +181,7 @@ class Page extends Content
 			}
 		}
 
-		/* @todo use 'text' option for 'content' fieldname */
+		/* @todo use 'body' option for 'content' fieldname */
 		$props = ['content', 'excerpt', 'description'];
 		foreach ($props as $prop) {
 			if (in_array($prop, $ignored)) continue;
