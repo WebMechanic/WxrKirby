@@ -466,14 +466,16 @@ class Converter
 	 */
 	public function splitSentence($text, $maxlen): string
 	{
-		$sentenz = strip_tags(kti($text));
-		if (preg_match_all('/[.;:]/', $sentenz, $pars, PREG_OFFSET_CAPTURE)) {
-			$len = $pars[0][0][1];
+		$sentenz = trim(strip_tags($text));
+		if (preg_match_all('/[.;:?!]/', $sentenz, $pars, PREG_OFFSET_CAPTURE)) {
+			$p = 0;
 			foreach ($pars[0] as $p => $para) {
 				if ($para[1] >= $maxlen) break;
 			}
-			$len     = $pars[0][$p - 1][1];
-			$sentenz = substr($sentenz, 0, $len) . '.';
+			$len     = ($p > 0) ? $pars[0][$p - 1][1] : $pars[0][$p][1];
+			$char    = ($p > 0) ? $pars[0][$p - 1][0] : $pars[0][$p][0];
+			if (strpos(' ;:', $char) >= 1) $char = '.';
+			$sentenz = substr($sentenz, 0, $len) . $char;
 		}
 		return $sentenz;
 	}
