@@ -456,6 +456,28 @@ class Converter
 		return $this;
 	}
 
+	/**
+	 * Cuts off a maximum of $maxlen characters using sentence boundaries (. : ;).
+	 * The resulting sentence might be shorter than $maxlen characters.
+	 *
+	 * @param $text
+	 * @param $maxlen
+	 * @return string
+	 */
+	public function splitSentence($text, $maxlen): string
+	{
+		$sentenz = strip_tags(kti($text));
+		if (preg_match_all('/[.;:]/', $sentenz, $pars, PREG_OFFSET_CAPTURE)) {
+			$len = $pars[0][0][1];
+			foreach ($pars[0] as $p => $para) {
+				if ($para[1] >= $maxlen) break;
+			}
+			$len     = $pars[0][$p - 1][1];
+			$sentenz = substr($sentenz, 0, $len) . '.';
+		}
+		return $sentenz;
+	}
+
 	public function __toString()
 	{
 		return print_r([
