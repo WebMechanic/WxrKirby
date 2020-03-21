@@ -14,6 +14,13 @@ use WebMechanic\Converter\Converter;
 
 class File extends Content
 {
+
+	public function getMediaRoot(): string
+	{
+		$root = Converter::getOption('paths')['kirby'];
+		return $root . '/media/pages/' . $this->filepath;
+	}
+
 	/**
 	 * Takes a Wordpress <item> of type "attachment" and reads properties
 	 * to copy files into the Kirby site.
