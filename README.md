@@ -1,4 +1,4 @@
-**[WIP]** *A fully working `master` branch expected to be available by the end of March 2020.* 
+**[WIP]** *A fully working `master` branch expected to be available by the end of March 2020.*
 
 # WxrKirby: WordPress eXtended RSS to Kirby
 Convert and Transform WordPress WXR export files into a new Kirby 3 Site.
@@ -19,14 +19,14 @@ By default WxrKirby does not cover the conversion or transform of plugin data or
  - one or several WordPress WXR export files
  - [League\HTMLToMarkdown](https://github.com/thephpleague/html-to-markdown/) for HTML to Markdown conversion (this dependency is subject to removal).
 
-To have the scripts also migrate your image and file uploads from WordPress to Kirby you should have the `/wp-content/uploads/` folder ready on the same machine you plan to perform the migration.  
+To have the scripts also migrate your image and file uploads from WordPress to Kirby you should have the `/wp-content/uploads/` folder ready on the same machine you plan to perform the migration.
 WxrKirby will not download any files for you.
 
-**Optional:**  
+**Optional:**
 A preinstalled, preconfigured working version of Kirby 3.3+ to fetch some configuration. Unless you specify a different output folder, this will also become the target root directory i.e. for the `./content` and `./site` folders.
 
 ## Differences after migration
-For the most part the existing content structure of your WordPress site will be preserved and you will end up with a bunch of Markdown files for your Blog Posts and Pages. There are of course differences in how Kirby treats user accounts, content _files_ and their associated image uploads. 
+For the most part the existing content structure of your WordPress site will be preserved and you will end up with a bunch of Markdown files for your Blog Posts and Pages. There are of course differences in how Kirby treats user accounts, content _files_ and their associated image uploads.
 
 Virtual pages like some created by gallery plugins or provided internally for the individual uploads will no longer exists but become part of the static `RewriteRule` output file for your review. A future version might create rule sets for the Kirby router (PRs welcome).
 
@@ -45,14 +45,14 @@ You should not need to make changes to the files provided &hellip; unless there 
  - make yourself familiar with the various `Constructor::$options` and their defaults!
  - create yourself a subclass of `\WebMechanic\Converter\Converter`
  - make sure your class can load/find any `Converter\Kirby\*`, `Converter\Wordpress\*` class and `HTMLToMarkdown`: **WxrKirby does not provide an autoloader for you.**
- - in your Class `__constructor` 
- - change 
+ - in your Class `__constructor`
+ - change
    - `static::$options['paths']['kirby'] = '/path/for/migration/'` to point to an existing folder. That's where all converted files will eventually be stored.
    - `static::$options['paths']['create'] = true;` if you want the Converter to create the content folder structure for you
    - other `$options` as you see fit and add your own for your Converter or Transforms
  - have a WXR file ready
  - pass the XML filepath to the constructor and run `convert()`
- - if there are no errors loop thru the collections you care about and call their `writeOutput()` to create the files 
+ - if there are no errors loop thru the collections you care about and call their `writeOutput()` to create the files
 
 ```php
 class Migrator extends Converter
@@ -61,7 +61,7 @@ class Migrator extends Converter
   {
     static::$options['paths']['create'] = true;
     static::$options['paths']['kirby'] = '/path/for/migration/';
-    
+
     // kick start XML processing
     parent::__construct($xmlfile);
 
@@ -92,9 +92,12 @@ foreach ($M->getPages() as $page) {
 }
 ```
 
+# License
+[WTFPL](http://www.wtfpl.net/)
+
 # Tasks
 
-- [x] Transform XML to create Kirby-ish
+- [x] Transform XML to create Kirby-ish objects representing
    - [x] Site
    - [x] Pages/Posts
    - [x] Attachments
@@ -103,15 +106,17 @@ foreach ($M->getPages() as $page) {
    - [x] URL mapping and transform
 - [x] Write Pages markdown
    - [x] Blueprint name mapping
-   - [ ] Fields name mapping and omission
-   - [ ] Remove HTMLToMarkdown dependency
+   - [ ] Fields name mapping and removal
+   - [ ] Remove [HTMLToMarkdown](https://github.com/thephpleague/html-to-markdown/) dependency
+     - [ ] find use for [PHPHtmlParser](https://github.com/paquettg/php-html-parser) if installed (comes with [Kirby Editor](https://github.com/getkirby/editor))
 - [ ] Write image Attachment sidecars with meta data
+  - [ ] Add config options to call custom Image processors like [League\ColorExtractor](https://github.com/thephpleague/color-extractor)
 - [ ] Write Account 'user.txt'
    - [ ] Remap creator to Accounts
    - [ ] Create JSON files to bulk create new Kirby Accounts
-- [ ] Write (simple) Blueprints for Pages
-- [ ] Create Apache RewriteRules
+- [ ] Write (simple) Blueprints for encountered WordPress Templates other than `default`
+- [ ] Create Apache `RewriteRules`
 - [ ] Move/Link/Copy Attachments
-- [ ] Use Kirby Toolkit to do the file stuff
+- [ ] Use Kirby Toolkit to do stuff
 
 Contributions are welcome!
