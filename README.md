@@ -1,4 +1,7 @@
-**[WIP]** *A fully working `master` branch expected to be available by the end of March 2020.*
+**[WIP]** *Check the Tasks section about plans and progress of this beast.*
+You need to write a couple of lines PHP to do a basic migration of page and blog contents.  
+If you're a PHP geek and know your way around massivly polluted XML files you can enhance this package on a very granualar level to your liking.  
+Enjoy and good luck!
 
 # WxrKirby: WordPress eXtended RSS to Kirby
 Convert and Transform WordPress WXR export files into a new Kirby 3 Site.
