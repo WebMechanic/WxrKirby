@@ -165,8 +165,12 @@ class Page extends Content
 			'id', 'parent', 'name'
 		];
 		foreach ($props as $method => $prop) {
-			if ($titleField == $prop) {$prop = $titleField;}
-			if (in_array($prop, $ignored)) continue;
+			if ($titleField === $prop) {
+				$prop = $titleField;
+			}
+			if (in_array($prop, $ignored, true)) {
+				continue;
+			}
 			if (is_string($method)) {
 				$method = 'set' . ucwords($method, '_');
 			} else {
@@ -184,18 +188,26 @@ class Page extends Content
 		/* @todo use 'body' option for 'content' fieldname */
 		$props = ['content', 'excerpt', 'description'];
 		foreach ($props as $prop) {
-			if (in_array($prop, $ignored)) continue;
+			if (in_array($prop, $ignored, true)) {
+				continue;
+			}
 			$this->setContent($prop, $post->{$prop});
 		}
 
 		/** deconstruct fields from arrays */
 		$props = ['fields', 'data'];
 		foreach ($props as $prop) {
-			if (in_array($prop, $ignored)) continue;
+			if (in_array($prop, $ignored, true)) {
+				continue;
+			}
 
 			foreach ((array) $post->{$prop} as $key => $value) {
-				if ($textField == $key) {$key = $textField;}
-				if (in_array($key, $ignored)) continue;
+				if ($textField === $key) {
+					$key = $textField;
+				}
+				if (in_array($key, $ignored, true)) {
+					continue;
+				}
 				$method = 'set' . ucwords($key, '_');
 				$method = str_replace('_', '', $method);
 
@@ -273,7 +285,9 @@ class Page extends Content
 			$this->write($prop, $this->$prop);
 		}
 
-		if (is_resource($this->fh)) fclose($this->fh);
+		if (is_resource($this->fh)) {
+			fclose($this->fh);
+		}
 
 		return $this;
 	}
@@ -286,14 +300,14 @@ class Page extends Content
 		$filePath = $this->getContentPath() . $this->filepath;
 
 		$content = $this->html['content'];
-		if (strlen($content)) {
+		if ($content !== '') {
 			echo "  HTML {$filePath}content.html \n";
 
 			file_put_contents("{$filePath}content.html", $content);
 		}
 
 		$excerpt = $this->html['excerpt'];
-		if (strlen($excerpt)) {
+		if ($excerpt !== '') {
 			echo "  HTML {$filePath}excerpt.html \n";
 
 			file_put_contents("{$filePath}excerpt.html", $excerpt);
@@ -302,7 +316,7 @@ class Page extends Content
 		return $this;
 	}
 
-	public function dump()
+	public function dump(): void
 	{
 		/** @var Author $creator */
 		$creator = $this->getContent('creator');
@@ -311,11 +325,11 @@ class Page extends Content
 
 		//	$subtitle = $post->getField('Subtitle');
 		echo <<<LOG
-Page: {$this->id} ({$this->parent}) {$this->link} {$this->created} 
+Page: $this->id ($this->parent) $this->link $this->created 
     | {$this->getContentFile()}
-    F {$fields}
-    M {$meta}
-    C {$creator->getFullName()} <{$creator->email}> ({$creator->username}) 
+    F $fields
+    M $meta
+    C {$creator->getFullName()} <$creator->email> ($creator->username) 
 
 LOG;
 	}
