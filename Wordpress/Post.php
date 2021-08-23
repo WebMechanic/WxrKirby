@@ -501,8 +501,9 @@ class Post extends Item
 		$this->data[$store] = (array)$this->data[$store];
 
 		for ($e = 0; $e < $elms->length; $e++) {
-			/* @var DOMElement */
+			/* @var DOMNode */
 			$elt  = $elms->item($e);
+			/** @todo maybe should be $elt->attributes->getNamedItem($attr) */
 			$link = $elt ? $elt->getAttribute($attr) : '';
 			// returns empty string for '#' only links
 			$url  = $this->cleanUrl($link);
