@@ -63,16 +63,16 @@ class Post extends Item
 	/** @var int bit mask for HTML parser hints */
 	protected $hints = 0;
 	/** @internal int source fields being hinted */
-	const PARSE_DESCRIPTION  = 16;
-	const PARSE_CONTENT      = 32;
-	const PARSE_EXCERPT      = 64;
+	public const PARSE_DESCRIPTION  = 16;
+	public const PARSE_CONTENT      = 32;
+	public const PARSE_EXCERPT      = 64;
 	/** @internal int parse for any HTML */
 	/** @internal int parse for a and link and strip href for Attachment */
-	const HINT_LINK = 1;
+	public const HINT_LINK = 1;
 	/** @internal int parse for image elements and strip src for Attachment */
-	const HINT_IMG = 2;
+	public const HINT_IMG = 2;
 	/** @internal int parse for srcset attributes for Attachment */
-	const HINT_SRCSET = 4;
+	public const HINT_SRCSET = 4;
 
 	/**
 	 * @param DOMNode $elt
@@ -121,9 +121,15 @@ class Post extends Item
 	{
 		if (preg_match('/<[a-z]+\s?/', $html)) {
 			$this->hints = $source;
-			if (strpos($html, 'href=')) $this->hints |= self::HINT_LINK;
-			if (strpos($html, '<img')) $this->hints |= self::HINT_IMG;
-			if (strpos($html, 'srcset=')) $this->hints |= self::HINT_SRCSET;
+			if (strpos($html, 'href=')) {
+				$this->hints |= self::HINT_LINK;
+			}
+			if (strpos($html, '<img')) {
+				$this->hints |= self::HINT_IMG;
+			}
+			if (strpos($html, 'srcset=')) {
+				$this->hints |= self::HINT_SRCSET;
+			}
 		} else {
 			$this->hints = 0;
 		}
@@ -136,7 +142,8 @@ class Post extends Item
 	 * @param int $flag
 	 * @return int
 	 */
-	public function hasFlag(int $flag) {
+	public function hasFlag(int $flag): int
+	{
 		return $this->hints & $flag;
 	}
 
@@ -147,7 +154,7 @@ class Post extends Item
 	 * @param DOMNode $elt
 	 *
 	 * @return Post
-	 * @see setIntro()
+	 * @see setIntro(), extractInlineUrls(), htmlConvert()
 	 */
 	public function setContent(DOMNode $elt): Post
 	{
@@ -164,7 +171,7 @@ class Post extends Item
 		return $this;
 	}
 
-	public function getContent($original = false)
+	public function getContent($original = false): string
 	{
 		if ($original) {
 			return $this->content_html;
@@ -379,8 +386,8 @@ class Post extends Item
 
 	/**
 	 * Get categories and tags of this post.
-	 * `<category domain="category" nicename="blog-categoriename1"><![CDATA[Categorie Name 1]]></category>`
-	 * `<category domain="category" nicename="blog-categoriename2"><![CDATA[Categorie Name 2]]></category>`
+	 * `<category domain="category" nicename="blog-categoriename1"><![CDATA[Category Name 1]]></category>`
+	 * `<category domain="category" nicename="blog-categoriename2"><![CDATA[Category Name 2]]></category>`
 	 *
 	 * Not handled here:
 	 * `<category domain="nav_menu" nicename="mainmenu"><![CDATA[Main Menu]]></category>`
@@ -423,7 +430,13 @@ class Post extends Item
 		return $this;
 	}
 
-	public function extractInlineUrls(string $html)
+	/**
+	 * Parses a chunk of HTML (such as $content_html) and extracts all links
+	 * inside to recreate them as Assets for Kirby with their potential new location.
+	 *
+	 * @param string $html  A chunk of HTML with URLs in it (links, images)
+	 */
+	public function extractInlineUrls(string $html): void
 	{
 		$doc = new \DOMDocument();
 		libxml_use_internal_errors(true);
@@ -433,55 +446,68 @@ class Post extends Item
 
 		$body = $doc->documentElement->firstChild;
 
-		if ($this->hasFlag(Post::HINT_LINK)) {
-			/* @var \DOMNodeList $elms */
+		if ($this->hasFlag(self::HINT_LINK)) {
+			/* @var \DOMNodeList */
 			$elms = $body->getElementsByTagName('a');
 			if ($elms->length > 0) {
-				$this->hints ^= Post::HINT_LINK;
+				$this->hints ^= self::HINT_LINK;
 				$data = 'links';
 				$this->collectAttributes($elms, 'href', $data);
 			}
 		}
 
-		if ($this->hasFlag(Post::HINT_IMG)) {
+		if ($this->hasFlag(self::HINT_IMG)) {
 			/* @var \DOMNodeList */
 			$elms = $body->getElementsByTagName('img');
 			if ($elms->length > 0) {
-				$this->hints ^= Post::HINT_IMG;
+				$this->hints ^= self::HINT_IMG;
 				$data = 'images';
 				$this->collectAttributes($elms, 'src', $data);
 
 				/* @todo parse IMG srcset and store as Attachments */
-				if ($this->hasFlag(Post::HINT_SRCSET)) {
+				if ($this->hasFlag(self::HINT_SRCSET)) {
 					$this->collectAttributes($elms, 'srcset', $data);
 				}
 			}
 		}
 
 		/* @todo parse SOURCE srcset and store as Attachments */
-		if ($this->hasFlag(Post::HINT_SRCSET)) {
+		if ($this->hasFlag(self::HINT_SRCSET)) {
 			/* @var \DOMNodeList */
 			$elms = $body->getElementsByTagName('source');
 			if ($elms->length > 0) {
-				$this->hints ^= Post::HINT_SRCSET;
+				$this->hints ^= self::HINT_SRCSET;
 				$data = 'sources';
 				$this->collectAttributes($elms, 'srcset', $data);
 			}
 		}
 	}
 
-	private function collectAttributes(\DOMNodeList $elms, string $attr, string $store)
+	/**
+	 * Given a list of DOMNodes finds the $attr from each instance and
+	 * saves the value in the data[$store] array for later processing.
+	 *
+	 * - `$attr` would refer to an attribute containing a URL (href, src, srcset)
+	 * - `$store` is the name of a collection of 'links', 'images' etc.
+	 *
+	 * @param \DOMNodeList $elms  List of elements.
+	 * @param string       $attr  Attribute (with URL) to fetch
+	 * @param string       $store Name of the $data[store] collection
+	 * @see extractInlineUrls()
+	 * @return void
+	 */
+	private function collectAttributes(\DOMNodeList $elms, string $attr, string $store): void
 	{
-		settype($this->data[$store], 'array');
+		$this->data[$store] = (array)$this->data[$store];
 
-		/* @var DOMElement $elt */
 		for ($e = 0; $e < $elms->length; $e++) {
+			/* @var DOMElement */
 			$elt  = $elms->item($e);
-			$link = $elt->getAttribute($attr);
+			$link = $elt ? $elt->getAttribute($attr) : '';
 			// returns empty string for '#' only links
 			$url  = $this->cleanUrl($link);
 			if (!empty($url)) {
-				array_push($this->data[$store], $url);
+				$this->data[$store][] = $url;
 			}
 		}
 	}
