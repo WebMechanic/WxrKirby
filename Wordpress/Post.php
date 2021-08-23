@@ -395,10 +395,12 @@ class Post extends Item
 		$domain   = $elt->attributes->getNamedItem('domain');
 		$nicename = $elt->attributes->getNamedItem('nicename');
 
-		if ($domain == "post_tag") {
-			array_push($this->tags[$nicename], $value);
-		} elseif ($domain == "category") {
-			array_push($this->categories[$nicename], $value);
+		if ($domain !== null) {
+			if ($domain->nodeValue === "post_tag") {
+				$this->tags[$nicename][] = $value;
+			} elseif ($domain->nodeValue === "category") {
+				$this->categories[$nicename][] = $value;
+			}
 		}
 		return $this;
 	}

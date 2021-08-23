@@ -78,8 +78,10 @@ class Site extends Content
 		$this->host   = $channel->host;
 		$this->blog   = $channel->blogUrl;
 
-		foreach ($channel->fields as $key => $value) {
-			if (in_array($key, $ignored)) continue;
+		foreach ((array)$channel->{fields} as $key => $value) {
+			if (in_array($key, $ignored,true)) {
+				continue;
+			}
 			$method = 'set' . ucwords($key, '_');
 			$method = str_replace('_', '', $method);
 
@@ -123,7 +125,9 @@ class Site extends Content
 			$this->write($prop, $this->$prop);
 		}
 
-		if (is_resource($this->fh)) fclose($this->fh);
+		if (is_resource($this->fh)) {
+			fclose($this->fh);
+		}
 
 		return $this;
 	}

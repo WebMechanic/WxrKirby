@@ -42,10 +42,10 @@ class Item
 	/**
 	 * Wordpress Item constructor.
 	 *
-	 * @param DOMNode $node
-	 * @param WXR     $XML |null
+	 * @param DOMNode  $node  XML DOMNode (root) to parse.
+	 * @param WXR|null $XML   WXR parser instance.
 	 */
-	function __construct(DOMNode $node, WXR $XML = null)
+	public function __construct(DOMNode $node, ?WXR $XML = null)
 	{
 		$this->XML = $XML;
 
@@ -56,14 +56,14 @@ class Item
 	 * @param DOMNode $item
 	 * @return Item
 	 */
-	function parse(DOMNode $item)
+	public function parse(DOMNode $item): Item
 	{
 		$item->normalize();
 
 		foreach ($item->childNodes as $elt) {
 			/* only deal with this if there's some element content.
 			 * Empty nodes or <![CDATA[]]> is not. */
-			if (XML_ELEMENT_NODE == $elt->nodeType && $elt->firstChild) {
+			if (XML_ELEMENT_NODE === $elt->nodeType && $elt->firstChild) {
 				$this->set($elt);
 			}
 		}
@@ -87,12 +87,12 @@ class Item
 	 * @see  Attachment::setMetadata(), Attachment::setImageAlt()
 	 * @todo apply Transforms when setting a property @see Kirby\Content::set()
 	 */
-	public function set(DOMNode $elt, $store = 'fields'): Item
+	public function set(DOMNode $elt, string $store = 'fields'): Item
 	{
 		$prop = $elt->localName;
 
 		/* setContent() <content:encoded>, setExcerpt() <excerpt:encoded> */
-		if ($elt->localName == 'encoded') {
+		if ($elt->localName === 'encoded') {
 			$prop = $elt->prefix;
 		}
 
@@ -126,6 +126,12 @@ class Item
 		return $this;
 	}
 
+	/**
+	 * Intersects property access to call a dedicated getter method and return
+	 * its result instead.
+	 * @param $name
+	 * @return mixed|null
+	 */
 	public function __get($name)
 	{
 		$method = 'get' . ucfirst($name);
@@ -133,7 +139,7 @@ class Item
 			return $this->$method();
 		}
 
-		return (isset($this->{$name})) ? $this->{$name} : null;
+		return $this->{$name} ?? null;
 	}
 
 	public function setType(DOMNode $type): Item
@@ -206,7 +212,9 @@ class Item
 		// skip ftp, mailto, javascript, # etc.
 		if (!isset($parts['scheme'])) {
 			return $url;
-		} elseif ($parts['scheme'] !== 'http' && $parts['scheme'] !== 'https') {
+		}
+
+		if ($parts['scheme'] !== 'http' && $parts['scheme'] !== 'https') {
 			return $url;
 		}
 
@@ -330,7 +338,7 @@ class Item
 	 */
 	public function getField(string $fieldname): string
 	{
-		return isset($this->fields[$fieldname]) ? $this->fields[$fieldname] : '';
+		return $this->fields[$fieldname] ?? '';
 	}
 
 }

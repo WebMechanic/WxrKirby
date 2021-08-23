@@ -32,9 +32,9 @@ class Channel extends Item
 	 * Author <wp:author> and Item <item> are handled separately in WXR.
 	 *
 	 * @param DOMNode $channel
-	 * @return Channel
+	 * @return Channel|Item
 	 */
-	public function parse(DOMNode $channel): Channel
+	public function parse(DOMNode $channel): Item
 	{
 		$channel->normalize();
 
@@ -58,7 +58,7 @@ class Channel extends Item
 			case 'item':
 				/* we leave and let WXR::parse handle this */
 				return $this;
-				break;
+			//  break;
 
 			case 'title':           /* @see Item::setTitle() */
 			case 'description':
