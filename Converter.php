@@ -24,7 +24,7 @@ namespace WebMechanic\Converter;
 use DOMElement;
 use Kirby\Cms\App;
 
-use League\HTMLToMarkdown\HtmlConverter as HtmlConverter;
+use League\HTMLToMarkdown\HtmlConverter;
 
 use WebMechanic\Converter\Kirby\Author;
 use WebMechanic\Converter\Kirby\Page;
@@ -41,13 +41,13 @@ use WebMechanic\Converter\Wordpress\WXR;
 class Converter
 {
 	/** @var WXR $WXR access to WXR date */
-	protected $WXR = null;
+	protected $WXR;
 
 	/** @var Converter */
 	public static $converter;
 
 	/** @var Site $site the Kirby\Site `site.txt` with possible useful WordPress settings */
-	protected $site = null;
+	protected $site;
 
 	/** @var array  list of WebMechanic\Kirby\Pages from Wordpress\Post's */
 	protected $pages = [];
@@ -59,10 +59,10 @@ class Converter
 	protected $files = [];
 
 	/** @var array optional Transform objects */
-	protected $transforms = null;
+	protected $transforms;
 
 	/** @var App optional instance of a Kirby App from an active installation to gather some useful information */
-	public static $kirby = null;
+	public static $kirby;
 
 	/** @var HtmlConverter optional instance of `League\HTMLToMarkdown` form HTML to Markdown conversion */
 	public static $HTML;
@@ -167,7 +167,7 @@ class Converter
 
 		foreach (array_keys(static::$options['resolve_urls']) as $key) {
 			if (is_string(static::$options['resolve_urls'][$key])) {
-				static::$options['resolve_urls'][$key] = json_decode(static::$options['resolve_urls'][$key]);
+				static::$options['resolve_urls'][$key] = json_decode(static::$options['resolve_urls'][$key], false);
 			}
 		}
 
@@ -178,10 +178,12 @@ class Converter
 	 * Check and build output paths.
 	 * Will use $options['paths']['kirby'] as the root for 'content', 'assets',
 	 * and 'site'. Individual paths for each will be used if they exist.
+	 * @throws \InvalidArgumentException, \RuntimeException
+	 * @return void
 	 */
-	private function checkFolders()
+	private function checkFolders() : void
 	{
-		settype(static::$options['paths'], 'array');
+		static::$options['paths'] = (array)static::$options['paths'];
 		if (is_dir(static::$options['paths']['kirby'])) {
 			/* will also throw on Windows where "Kirby" and "kirby" are treated the same */
 			if (is_file(static::$options['paths']['kirby'] .'/Content.php')) {
@@ -194,7 +196,9 @@ class Converter
 			}
 		} else {
 			if (true === static::$options['paths']['create']) {
-				mkdir(static::$options['paths']['kirby'], 0750, true);
+				if (!mkdir($optionFolder = static::$options['paths']['kirby'], 0750, true) && !is_dir($optionFolder)) {
+					throw new \RuntimeException(sprintf('Directory "%s" was not created', $optionFolder));
+				}
 			} else {
 				throw new \InvalidArgumentException(
 					'Please provide a valid, existing and writeable Kirby output directory: ' .
@@ -211,7 +215,9 @@ class Converter
 
 			if ( true === static::$options['paths']['create'] && !is_dir(static::$options['paths'][$folder]) )
 			{
-				mkdir(static::$options['paths'][$folder], 0750, true);
+				if (!mkdir($optionFolder = static::$options['paths'][$folder], 0750, true) && !is_dir($optionFolder)) {
+					throw new \RuntimeException(sprintf('Directory "%s" was not created', $optionFolder));
+				}
 			}
 
 			static::$options['paths'][$folder] = realpath(static::$options['paths'][$folder]);
@@ -219,11 +225,11 @@ class Converter
 	}
 
 	/**
-	 * @param string $key
-	 * @param null   $default
+	 * @param string|null $key
+	 * @param null        $default
 	 * @return mixed|null
 	 */
-	public static function getOption(string $key, $default = null)
+	public static function getOption(?string $key, $default = null)
 	{
 		if ($key === null) {
 			return static::$options;
@@ -374,11 +380,11 @@ class Converter
 	 * The Author object of the Wordpress $username.
 	 *
 	 * @param string $username
-	 * @return Author
+	 * @return ?Author
 	 */
-	public function getAuthor(string $username): Author
+	public function getAuthor(string $username): ?Author
 	{
-		return isset($this->authors[$username]) ? $this->authors[$username] : null;
+		return $this->authors[$username] ?? null;
 	}
 
 	/**
@@ -441,8 +447,10 @@ class Converter
 	 */
 	public function setOrdering(): Converter
 	{
-		$ordering = (bool) Converter::getOption('paths', ['ordering' => false])['ordering'];
-		if (!$ordering) return $this;
+		$ordering = (bool) self::getOption('paths', ['ordering' => false])['ordering'];
+		if (false === $ordering) {
+			return $this;
+		}
 
 		# loop through $pages
 		# for pages with $order > 0 collect their filepath
@@ -470,11 +478,15 @@ class Converter
 		if (preg_match_all('/[.;:?!]/', $sentenz, $pars, PREG_OFFSET_CAPTURE)) {
 			$p = 0;
 			foreach ($pars[0] as $p => $para) {
-				if ($para[1] >= $maxlen) break;
+				if ($para[1] >= $maxlen) {
+					break;
+				}
 			}
 			$len     = ($p > 0) ? $pars[0][$p - 1][1] : $pars[0][$p][1];
 			$char    = ($p > 0) ? $pars[0][$p - 1][0] : $pars[0][$p][0];
-			if (strpos(' ;:', $char) >= 1) $char = '.';
+			if (strpos(' ;:', $char) >= 1) {
+				$char = '.';
+			}
 			$sentenz = substr($sentenz, 0, $len) . $char;
 		}
 		return $sentenz;
@@ -482,7 +494,7 @@ class Converter
 
 	public function __toString()
 	{
-		return print_r([
+		return (string) print_r([
 			'pages' => array_keys($this->pages),
 			'files' => array_keys($this->files),
 			'authors' => array_keys($this->authors)
