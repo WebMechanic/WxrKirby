@@ -172,7 +172,9 @@ abstract class Content
 	public function createContentPath($subfolders): string
 	{
 		$contentPath = $this->getContentPath() . $subfolders;
-		@mkdir($contentPath, 0750, true);
+		if (!mkdir($contentPath, 0750, true) && !is_dir($contentPath)) {
+			throw new \RuntimeException(sprintf('Directory "%s" was not created', $contentPath));
+		}
 		$contentPath = realpath($contentPath);
 		if (!is_dir($contentPath)) {
 			throw new \RuntimeException('Error creating content path [' . $this->getContentPath() . $subfolders . ']');
