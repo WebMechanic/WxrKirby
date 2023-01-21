@@ -26,13 +26,9 @@ use Kirby\Cms\App;
 
 use League\HTMLToMarkdown\HtmlConverter;
 
-use WebMechanic\Converter\Kirby\Author;
-use WebMechanic\Converter\Kirby\Page;
-use WebMechanic\Converter\Kirby\Site;
-use WebMechanic\Converter\Wordpress\Attachment;
-use WebMechanic\Converter\Wordpress\Channel;
-use WebMechanic\Converter\Wordpress\Post;
-use WebMechanic\Converter\Wordpress\WXR;
+// grouped use declaration
+use WebMechanic\Converter\Kirby\{Author,Page,Site};
+use WebMechanic\Converter\Wordpress\{Attachment,Channel,Post,WXR};
 
 /**
  * Manages a Wordpress XML to Kirby (v3) content conversion.

@@ -245,7 +245,7 @@ class Page extends Content
 
 	/**
 	 * @uses Converter::$options
-	 * @uses writeHtmlOutput()
+	 * @see writeHtmlOutput()
 	 * @todo use \Kirby\Cms\File::create() and \Kirby\Toolkit\F
 	 */
 	public function writeOutput(): Page
@@ -293,6 +293,7 @@ class Page extends Content
 	}
 
 	/**
+	 * @see writeOutput()
 	 * @return Page
 	 */
 	public function writeHtmlOutput(): Page

@@ -10,10 +10,10 @@
 namespace WebMechanic\Converter\Wordpress;
 
 use DOMNode;
-use WebMechanic\Converter\Converter;
-use WebMechanic\Converter\Transform;
-use WebMechanic\Converter\Kirby\Author;
-use WebMechanic\Converter\Kirby\Site;
+
+// grouped use declaration
+use WebMechanic\Converter\{Converter,Transform};
+use WebMechanic\Converter\Kirby\{Author,Site};
 
 class Item
 {
