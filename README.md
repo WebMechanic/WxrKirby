@@ -37,7 +37,29 @@ Virtual pages like some created by gallery plugins or provided internally for th
  > As of now the image and attachment data is retrieved and technically accessible inside the objects but data or files are currently created or written or moved. This would be subject to various `writeOutput()` methods. Check the "Tasks" section below.
 
 # Composer?
-_There won't be an installable Composer package in the foreseeable future_ and I will not accept PRs for this. However you can of course call an existing autoloader or bootstrapper to locate the optional Kirby CMS and `League\HTMLToMarkdown` packages, but you're on your own to eventually set up their class paths and vendor dirs.
+_There won't be an installable Composer package in the foreseeable future_ and I will not accept PRs for this. However you can of course call an existing autoloader or bootstrapper to locate the optional Kirby CMS and `league/html-to-markdown` packages, but you're on your own to eventually set up their class paths and vendor dirs.
+
+To use a common `ClassLoader`, you first need to load the class file containing the `ClassLoader`. This is the only class file that actually needs to be loaded explicitly via `require`. All other classes will be loaded on demand by the configured class loaders.
+
+```php
+<?php
+use Composer\Autoload\ClassLoader;
+
+// try this if you have Kirby nearby...
+require '/path/to-kirby3/vendor/composer/ClassLoader.php';
+
+$classLoader = new ClassLoader('WebMechanic', '/path/to/this-unzipped/repo');
+$classLoader->setUseIncludePath(true);
+
+// change according to your entry script (see example below)
+$classLoader->add('Converter', realpath(__DIR__));
+$classLoader->add('Converter\Kirby', realpath(__DIR__) . '/Kirby');
+$classLoader->add('Converter\Wordpress', realpath(__DIR__) . '/Wordpress');
+```
+
+The `ClassLoader` takes two constructor parameters, both optional. In the normal case both arguments are supplied and you're done for a single namespace setup. The first argument specifies the namespace prefix this class loader should be responsible for and the second parameter is the path to the root directory where the classes can be found.
+
+You need to resolve the paths for the `WebMechanic` and `League` namespaces.
 
 # Setup!
 For the time being just unzip (or git clone) the files of this repo into a convenient folder where the scripts have _read-write access_ to your XML export files, the target folder for all generated output files, and optional all your beautiful WordPress image uploads.
